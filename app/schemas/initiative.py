@@ -14,6 +14,9 @@ class InitiativeCreate(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
+    audience: str | None = None
+    event_type: str | None = None
+    language: str | None = None
 
 
 class InitiativeUpdate(BaseModel):
@@ -24,6 +27,9 @@ class InitiativeUpdate(BaseModel):
     start_time: dt.time | None = None
     end_date: dt.date | None = None
     end_time: dt.time | None = None
+    audience: str | None = None
+    event_type: str | None = None
+    language: str | None = None
 
 
 class InitiativeOut(BaseModel):
@@ -35,6 +41,9 @@ class InitiativeOut(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
+    audience: str | None = None
+    event_type: str | None = None
+    language: str | None = None
     status: str
     club_id: int
     club: ClubBrief | None = None

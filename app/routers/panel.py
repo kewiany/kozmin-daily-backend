@@ -65,6 +65,9 @@ async def create_event(
         start_time=body.start_time,
         end_date=body.end_date,
         end_time=body.end_time,
+        audience=body.audience,
+        event_type=body.event_type,
+        language=body.language,
         status="pending",
         club_id=club.id,
     )
@@ -154,6 +157,9 @@ async def create_initiative(
         start_time=body.start_time,
         end_date=body.end_date,
         end_time=body.end_time,
+        audience=body.audience,
+        event_type=body.event_type,
+        language=body.language,
         status="pending",
         club_id=club.id,
     )

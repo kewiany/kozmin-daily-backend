@@ -19,6 +19,9 @@ class Initiative(Base):
     end_date: Mapped[dt.date] = mapped_column(Date, nullable=False)
     end_time: Mapped[dt.time] = mapped_column(Time, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
+    audience: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    event_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    language: Mapped[str | None] = mapped_column(String(50), nullable=True)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
