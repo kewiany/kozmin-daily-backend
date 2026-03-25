@@ -41,6 +41,7 @@ class EventOut(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
+    is_highlighted: bool = False
     status: str
     club_id: int
     club: ClubBrief | None = None

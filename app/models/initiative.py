@@ -1,7 +1,7 @@
 import datetime as dt
 from datetime import datetime, timezone
 
-from sqlalchemy import Date, DateTime, ForeignKey, String, Text, Time
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -22,6 +22,7 @@ class Initiative(Base):
     audience: Mapped[str | None] = mapped_column(String(50), nullable=True)
     event_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
     language: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    is_highlighted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
