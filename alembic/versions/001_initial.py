@@ -37,7 +37,10 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("title", sa.String(300), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column("date", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("start_date", sa.Date(), nullable=False),
+        sa.Column("start_time", sa.Time(), nullable=False),
+        sa.Column("end_date", sa.Date(), nullable=False),
+        sa.Column("end_time", sa.Time(), nullable=False),
         sa.Column("status", sa.String(20), server_default="pending", nullable=False),
         sa.Column(
             "club_id", sa.Integer(), sa.ForeignKey("clubs.id"), nullable=False
@@ -56,7 +59,10 @@ def upgrade() -> None:
         sa.Column("title", sa.String(300), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("category", sa.String(100), nullable=True),
-        sa.Column("date", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("start_date", sa.Date(), nullable=False),
+        sa.Column("start_time", sa.Time(), nullable=False),
+        sa.Column("end_date", sa.Date(), nullable=False),
+        sa.Column("end_time", sa.Time(), nullable=False),
         sa.Column("status", sa.String(20), server_default="pending", nullable=False),
         sa.Column(
             "club_id", sa.Integer(), sa.ForeignKey("clubs.id"), nullable=False

@@ -16,7 +16,7 @@ async def list_events(
     result = await db.execute(
         select(Event)
         .where(Event.status == "approved")
-        .order_by(Event.date.desc())
+        .order_by(Event.start_date.desc(), Event.start_time.desc())
         .offset(skip)
         .limit(limit)
     )

@@ -16,7 +16,7 @@ async def list_initiatives(
     result = await db.execute(
         select(Initiative)
         .where(Initiative.status == "approved")
-        .order_by(Initiative.date.desc())
+        .order_by(Initiative.start_date.desc(), Initiative.start_time.desc())
         .offset(skip)
         .limit(limit)
     )

@@ -28,7 +28,7 @@ async def list_my_events(
     club: Club = Depends(require_club_role), db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(
-        select(Event).where(Event.club_id == club.id).order_by(Event.date.desc())
+        select(Event).where(Event.club_id == club.id).order_by(Event.start_date.desc(), Event.start_time.desc())
     )
     return result.scalars().all()
 
@@ -40,15 +40,15 @@ async def create_event(
     db: AsyncSession = Depends(get_db),
 ):
     # Check max 2 events per month for this club
-    event_month = body.date.month
-    event_year = body.date.year
+    event_month = body.start_date.month
+    event_year = body.start_date.year
     count_result = await db.execute(
         select(func.count())
         .select_from(Event)
         .where(
             Event.club_id == club.id,
-            extract("month", Event.date) == event_month,
-            extract("year", Event.date) == event_year,
+            extract("month", Event.start_date) == event_month,
+            extract("year", Event.start_date) == event_year,
         )
     )
     count = count_result.scalar()
@@ -61,7 +61,10 @@ async def create_event(
     event = Event(
         title=body.title,
         description=body.description,
-        date=body.date,
+        start_date=body.start_date,
+        start_time=body.start_time,
+        end_date=body.end_date,
+        end_time=body.end_time,
         status="pending",
         club_id=club.id,
     )
@@ -117,7 +120,7 @@ async def list_my_initiatives(
     result = await db.execute(
         select(Initiative)
         .where(Initiative.club_id == club.id)
-        .order_by(Initiative.date.desc())
+        .order_by(Initiative.start_date.desc(), Initiative.start_time.desc())
     )
     return result.scalars().all()
 
@@ -147,7 +150,10 @@ async def create_initiative(
         title=body.title,
         description=body.description,
         category=body.category,
-        date=body.date,
+        start_date=body.start_date,
+        start_time=body.start_time,
+        end_date=body.end_date,
+        end_time=body.end_time,
         status="pending",
         club_id=club.id,
     )

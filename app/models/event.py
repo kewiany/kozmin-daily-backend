@@ -1,6 +1,7 @@
+import datetime as dt
 from datetime import datetime, timezone
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import Date, DateTime, ForeignKey, String, Text, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -12,11 +13,14 @@ class Event(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    date: Mapped[datetime] = mapped_column(nullable=False)
+    start_date: Mapped[dt.date] = mapped_column(Date, nullable=False)
+    start_time: Mapped[dt.time] = mapped_column(Time, nullable=False)
+    end_date: Mapped[dt.date] = mapped_column(Date, nullable=False)
+    end_time: Mapped[dt.time] = mapped_column(Time, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc), nullable=False
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     club = relationship("Club", back_populates="events")
