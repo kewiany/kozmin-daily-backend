@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +18,48 @@ async def list_events(
     result = await db.execute(
         select(Event)
         .where(Event.status == "approved")
+        .order_by(Event.start_date.desc(), Event.start_time.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+@router.get("/all", response_model=list[EventOut])
+async def list_all_events(
+    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Event)
+        .where(Event.status == "approved")
+        .order_by(Event.start_date.asc(), Event.start_time.asc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+@router.get("/upcoming", response_model=list[EventOut])
+async def list_upcoming_events(
+    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Event)
+        .where(Event.status == "approved", Event.start_date >= date.today())
+        .order_by(Event.start_date.asc(), Event.start_time.asc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+@router.get("/past", response_model=list[EventOut])
+async def list_past_events(
+    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Event)
+        .where(Event.status == "approved", Event.start_date < date.today())
         .order_by(Event.start_date.desc(), Event.start_time.desc())
         .offset(skip)
         .limit(limit)

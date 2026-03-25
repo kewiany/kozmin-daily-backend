@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +18,48 @@ async def list_initiatives(
     result = await db.execute(
         select(Initiative)
         .where(Initiative.status == "approved")
+        .order_by(Initiative.start_date.desc(), Initiative.start_time.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+@router.get("/all", response_model=list[InitiativeOut])
+async def list_all_initiatives(
+    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Initiative)
+        .where(Initiative.status == "approved")
+        .order_by(Initiative.start_date.asc(), Initiative.start_time.asc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+@router.get("/upcoming", response_model=list[InitiativeOut])
+async def list_upcoming_initiatives(
+    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Initiative)
+        .where(Initiative.status == "approved", Initiative.start_date >= date.today())
+        .order_by(Initiative.start_date.asc(), Initiative.start_time.asc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+@router.get("/past", response_model=list[InitiativeOut])
+async def list_past_initiatives(
+    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Initiative)
+        .where(Initiative.status == "approved", Initiative.start_date < date.today())
         .order_by(Initiative.start_date.desc(), Initiative.start_time.desc())
         .offset(skip)
         .limit(limit)
