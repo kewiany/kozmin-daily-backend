@@ -19,6 +19,11 @@ class ClubOut(BaseModel):
     role: str
     logo_url: str | None = None
     type: str
+    description: str | None = None
+    email: str | None = None
+    facebook_url: str | None = None
+    instagram_url: str | None = None
+    website_url: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
