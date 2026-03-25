@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.initiative import Initiative
@@ -17,6 +18,7 @@ async def list_initiatives(
 ):
     result = await db.execute(
         select(Initiative)
+        .options(selectinload(Initiative.club))
         .where(Initiative.status == "approved")
         .order_by(Initiative.start_date.desc(), Initiative.start_time.desc())
         .offset(skip)
@@ -31,6 +33,7 @@ async def list_all_initiatives(
 ):
     result = await db.execute(
         select(Initiative)
+        .options(selectinload(Initiative.club))
         .where(Initiative.status == "approved")
         .order_by(Initiative.start_date.asc(), Initiative.start_time.asc())
         .offset(skip)
@@ -45,6 +48,7 @@ async def list_upcoming_initiatives(
 ):
     result = await db.execute(
         select(Initiative)
+        .options(selectinload(Initiative.club))
         .where(Initiative.status == "approved", Initiative.start_date >= date.today())
         .order_by(Initiative.start_date.asc(), Initiative.start_time.asc())
         .offset(skip)
@@ -59,6 +63,7 @@ async def list_past_initiatives(
 ):
     result = await db.execute(
         select(Initiative)
+        .options(selectinload(Initiative.club))
         .where(Initiative.status == "approved", Initiative.start_date < date.today())
         .order_by(Initiative.start_date.desc(), Initiative.start_time.desc())
         .offset(skip)

@@ -14,6 +14,8 @@ class Club(Base):
     login: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(200), nullable=False)
     role: Mapped[str] = mapped_column(String(20), default="club", nullable=False)
+    logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    type: Mapped[str] = mapped_column(String(20), default="club", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc), nullable=False
     )

@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.event import Event
@@ -17,6 +18,7 @@ async def list_events(
 ):
     result = await db.execute(
         select(Event)
+        .options(selectinload(Event.club))
         .where(Event.status == "approved")
         .order_by(Event.start_date.desc(), Event.start_time.desc())
         .offset(skip)
@@ -31,6 +33,7 @@ async def list_all_events(
 ):
     result = await db.execute(
         select(Event)
+        .options(selectinload(Event.club))
         .where(Event.status == "approved")
         .order_by(Event.start_date.asc(), Event.start_time.asc())
         .offset(skip)
@@ -45,6 +48,7 @@ async def list_upcoming_events(
 ):
     result = await db.execute(
         select(Event)
+        .options(selectinload(Event.club))
         .where(Event.status == "approved", Event.start_date >= date.today())
         .order_by(Event.start_date.asc(), Event.start_time.asc())
         .offset(skip)
@@ -59,6 +63,7 @@ async def list_past_events(
 ):
     result = await db.execute(
         select(Event)
+        .options(selectinload(Event.club))
         .where(Event.status == "approved", Event.start_date < date.today())
         .order_by(Event.start_date.desc(), Event.start_time.desc())
         .offset(skip)
@@ -70,7 +75,9 @@ async def list_past_events(
 @router.get("/{event_id}", response_model=EventOut)
 async def get_event(event_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Event).where(Event.id == event_id, Event.status == "approved")
+        select(Event)
+        .options(selectinload(Event.club))
+        .where(Event.id == event_id, Event.status == "approved")
     )
     event = result.scalar_one_or_none()
     if not event:

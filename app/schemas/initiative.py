@@ -3,6 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from app.schemas.club import ClubBrief
+
 
 class InitiativeCreate(BaseModel):
     title: str
@@ -35,6 +37,7 @@ class InitiativeOut(BaseModel):
     end_time: dt.time
     status: str
     club_id: int
+    club: ClubBrief | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
