@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import admin, auth, clubs, events, initiatives, panel, search
+from app.routers import admin, auth, clubs, events, initiatives, mobile_auth, panel, search
 
 app = FastAPI(title="Kozmin Daily API", version="1.0.0")
 
@@ -23,6 +23,7 @@ app.include_router(auth.router)
 app.include_router(panel.router)
 app.include_router(admin.router)
 app.include_router(search.router)
+app.include_router(mobile_auth.router)
 
 
 @app.get("/")
