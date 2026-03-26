@@ -42,6 +42,7 @@ class EventOut(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
+    location: str | None = None
     is_highlighted: bool = False
     status: str
     club_id: int
@@ -59,6 +60,7 @@ class InitiativeOut(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
+    location: str | None = None
     is_highlighted: bool = False
     status: str
     club_id: int

@@ -17,6 +17,7 @@ class InitiativeCreate(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
+    location: str | None = None
 
 
 class InitiativeUpdate(BaseModel):
@@ -30,6 +31,7 @@ class InitiativeUpdate(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
+    location: str | None = None
 
 
 class InitiativeOut(BaseModel):
@@ -44,6 +46,7 @@ class InitiativeOut(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
+    location: str | None = None
     is_highlighted: bool = False
     status: str
     club_id: int
