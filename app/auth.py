@@ -67,11 +67,20 @@ async def verify_apple_token(identity_token: str, bundle_id: str) -> dict:
 
     public_key = jwk.construct(matching_key)
 
+    # Decode and verify signature + issuer, check audience manually
     payload = jwt.decode(
         identity_token,
         public_key,
         algorithms=["RS256"],
-        audience=bundle_id,
         issuer="https://appleid.apple.com",
+        options={"verify_aud": False},
     )
+
+    # Manual audience check
+    token_aud = payload.get("aud")
+    if token_aud != bundle_id:
+        raise JWTError(
+            f"Invalid audience: got '{token_aud}', expected '{bundle_id}'"
+        )
+
     return payload

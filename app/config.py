@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     PORT: int = 8000
     CORS_ORIGINS: str = "*"
-    APPLE_BUNDLE_ID: str = "com.example.kozmindaily"
+    APPLE_BUNDLE_ID: str = "pl.startupstars.kozmindaily"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 
