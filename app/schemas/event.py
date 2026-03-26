@@ -16,7 +16,10 @@ class EventCreate(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
-    location: str | None = None
+    address_name: str | None = None
+    address_street: str | None = None
+    address_city: str | None = None
+    room_number: str | None = None
 
 
 class EventUpdate(BaseModel):
@@ -29,7 +32,10 @@ class EventUpdate(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
-    location: str | None = None
+    address_name: str | None = None
+    address_street: str | None = None
+    address_city: str | None = None
+    room_number: str | None = None
 
 
 class EventOut(BaseModel):
@@ -43,7 +49,10 @@ class EventOut(BaseModel):
     audience: str | None = None
     event_type: str | None = None
     language: str | None = None
-    location: str | None = None
+    address_name: str | None = None
+    address_street: str | None = None
+    address_city: str | None = None
+    room_number: str | None = None
     is_highlighted: bool = False
     status: str
     club_id: int

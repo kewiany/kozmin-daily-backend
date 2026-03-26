@@ -21,7 +21,10 @@ class Event(Base):
     audience: Mapped[str | None] = mapped_column(String(50), nullable=True)
     event_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
     language: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    location: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    address_name: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    address_street: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    address_city: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    room_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     is_highlighted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
