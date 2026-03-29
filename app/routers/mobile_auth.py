@@ -74,6 +74,16 @@ async def get_me(user: User = Depends(get_current_user)):
     return UserResponse.model_validate(user)
 
 
+@router.delete("/auth/me")
+async def delete_account(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await db.delete(user)
+    await db.commit()
+    return {"ok": True}
+
+
 @router.put("/users/phone", response_model=UserResponse)
 async def update_phone(
     body: PhoneUpdateRequest,
