@@ -4,13 +4,15 @@ from pydantic import BaseModel, field_validator
 class AppleAuthRequest(BaseModel):
     identity_token: str
     email: str | None = None
-    full_name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
 
 
 class UserResponse(BaseModel):
     id: int
     email: str | None = None
-    full_name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
     phone: str | None = None
 
     model_config = {"from_attributes": True}
@@ -19,8 +21,22 @@ class UserResponse(BaseModel):
 class AuthResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    needs_profile: bool
     needs_phone: bool
     user: UserResponse
+
+
+class ProfileUpdateRequest(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        if "@" not in v or "." not in v:
+            raise ValueError("Invalid email address")
+        return v
 
 
 class PhoneUpdateRequest(BaseModel):
