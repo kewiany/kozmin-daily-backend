@@ -12,8 +12,12 @@ _app: firebase_admin.App | None = None
 
 
 def init_firebase() -> None:
+    import os
     global _app
-    raw = settings.FIREBASE_CREDENTIALS_JSON
+    raw = os.environ.get("FIREBASE_CREDENTIALS_JSON", "")
+    print(f"[firebase] from os.environ: length={len(raw)}")
+    if not raw:
+        raw = settings.FIREBASE_CREDENTIALS_JSON
     print(f"[firebase] FIREBASE_CREDENTIALS_JSON length={len(raw)}, starts_with={raw[:20]!r}")
     if not raw:
         print("[firebase] FIREBASE_CREDENTIALS_JSON not set — push notifications disabled")
