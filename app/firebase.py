@@ -13,16 +13,19 @@ _app: firebase_admin.App | None = None
 
 def init_firebase() -> None:
     global _app
-    if not settings.FIREBASE_CREDENTIALS_JSON:
-        logger.warning("FIREBASE_CREDENTIALS_JSON not set — push notifications disabled")
+    raw = settings.FIREBASE_CREDENTIALS_JSON
+    print(f"[firebase] FIREBASE_CREDENTIALS_JSON length={len(raw)}, starts_with={raw[:20]!r}")
+    if not raw:
+        print("[firebase] FIREBASE_CREDENTIALS_JSON not set — push notifications disabled")
         return
     try:
-        cred_dict = json.loads(settings.FIREBASE_CREDENTIALS_JSON)
+        cred_dict = json.loads(raw)
+        print(f"[firebase] Parsed JSON, project_id={cred_dict.get('project_id')}")
         cred = credentials.Certificate(cred_dict)
         _app = firebase_admin.initialize_app(cred)
-        logger.info("Firebase Admin SDK initialized")
+        print("[firebase] Firebase Admin SDK initialized")
     except Exception as e:
-        logger.error("Failed to initialize Firebase: %s", e)
+        print(f"[firebase] Failed to initialize Firebase: {e}")
 
 
 def send_broadcast(
