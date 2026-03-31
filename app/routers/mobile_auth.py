@@ -8,6 +8,7 @@ from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.user import User
+from app.schemas.notification import FCMTokenRequest
 from app.schemas.user import (
     AppleAuthRequest,
     AuthResponse,
@@ -27,7 +28,6 @@ def _needs_profile(user: User) -> bool:
 async def apple_auth(
     body: AppleAuthRequest,
     db: AsyncSession = Depends(get_db),
-):
     try:
         payload = await verify_apple_token(
             body.identity_token, settings.APPLE_BUNDLE_ID
@@ -116,3 +116,14 @@ async def update_phone(
     await db.commit()
     await db.refresh(user)
     return UserResponse.model_validate(user)
+
+
+@router.put("/users/fcm-token")
+async def update_fcm_token(
+    body: FCMTokenRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    user.fcm_token = body.fcm_token
+    await db.commit()
+    return {"ok": True}

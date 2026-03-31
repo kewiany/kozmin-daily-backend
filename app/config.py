@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     CORS_ORIGINS: str = "*"
     APPLE_BUNDLE_ID: str = "pl.startupstars.kozmindaily"
+    FIREBASE_CREDENTIALS_JSON: str = ""
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

@@ -17,6 +17,7 @@ class User(Base):
     first_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    fcm_token: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
         nullable=False,

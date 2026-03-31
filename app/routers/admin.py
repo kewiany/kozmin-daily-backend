@@ -5,11 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dependencies import require_admin_role
+from app.firebase import send_broadcast
 from app.models.club import Club
 from app.models.event import Event
 from app.models.initiative import Initiative
+from app.models.user import User
 from app.schemas.event import EventOut
 from app.schemas.initiative import InitiativeOut
+from app.schemas.notification import (
+    BroadcastNotificationRequest,
+    BroadcastNotificationResponse,
+)
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
@@ -107,3 +113,35 @@ async def reject_initiative(
     await db.commit()
     await db.refresh(initiative)
     return initiative
+
+
+@router.post(
+    "/notifications/broadcast", response_model=BroadcastNotificationResponse
+)
+async def broadcast_notification(
+    body: BroadcastNotificationRequest,
+    _admin: Club = Depends(require_admin_role),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(User).where(User.fcm_token.is_not(None))
+    )
+    users = result.scalars().all()
+    tokens = [u.fcm_token for u in users]
+
+    if not tokens:
+        return BroadcastNotificationResponse(
+            success=0, failure=0, total_tokens=0
+        )
+
+    success, failure, bad_tokens = send_broadcast(tokens, body.title, body.body)
+
+    if bad_tokens:
+        for user in users:
+            if user.fcm_token in bad_tokens:
+                user.fcm_token = None
+        await db.commit()
+
+    return BroadcastNotificationResponse(
+        success=success, failure=failure, total_tokens=len(tokens)
+    )

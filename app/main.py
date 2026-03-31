@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.firebase import init_firebase
 from app.routers import admin, auth, clubs, events, initiatives, mobile_auth, panel, search
 
 app = FastAPI(title="Kozmin Daily API", version="1.0.0")
@@ -15,6 +16,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+init_firebase()
 
 app.include_router(events.router)
 app.include_router(clubs.router)
