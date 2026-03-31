@@ -28,6 +28,7 @@ def _needs_profile(user: User) -> bool:
 async def apple_auth(
     body: AppleAuthRequest,
     db: AsyncSession = Depends(get_db),
+):
     try:
         payload = await verify_apple_token(
             body.identity_token, settings.APPLE_BUNDLE_ID
