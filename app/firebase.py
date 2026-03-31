@@ -14,6 +14,8 @@ _app: firebase_admin.App | None = None
 def init_firebase() -> None:
     import os
     global _app
+    env_keys = [k for k in os.environ if "FIREBASE" in k or "DATABASE" in k or "SECRET" in k]
+    print(f"[firebase] env keys matching: {env_keys}")
     raw = os.environ.get("FIREBASE_CREDENTIALS_JSON", "")
     print(f"[firebase] from os.environ: length={len(raw)}")
     if not raw:
