@@ -1,10 +1,9 @@
 import json
 import logging
+import os
 
 import firebase_admin
 from firebase_admin import credentials, messaging
-
-from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -12,30 +11,22 @@ _app: firebase_admin.App | None = None
 
 
 def init_firebase() -> None:
-    import os
     global _app
-    env_keys = [k for k in os.environ if "FIREBASE" in k or "DATABASE" in k or "SECRET" in k]
-    print(f"[firebase] env keys matching: {env_keys}")
     raw = os.environ.get("FIREBASE_CREDENTIALS_JSON", "")
-    print(f"[firebase] from os.environ: length={len(raw)}")
     if not raw:
-        raw = settings.FIREBASE_CREDENTIALS_JSON
-    print(f"[firebase] FIREBASE_CREDENTIALS_JSON length={len(raw)}, starts_with={raw[:20]!r}")
-    if not raw:
-        print("[firebase] FIREBASE_CREDENTIALS_JSON not set — push notifications disabled")
+        logger.warning("FIREBASE_CREDENTIALS_JSON not set — push notifications disabled")
         return
     try:
         cred_dict = json.loads(raw)
-        print(f"[firebase] Parsed JSON, project_id={cred_dict.get('project_id')}")
         cred = credentials.Certificate(cred_dict)
         _app = firebase_admin.initialize_app(cred)
-        print("[firebase] Firebase Admin SDK initialized")
+        logger.info("Firebase Admin SDK initialized")
     except Exception as e:
-        print(f"[firebase] Failed to initialize Firebase: {e}")
+        logger.error("Failed to initialize Firebase: %s", e)
 
 
 def send_broadcast(
-    tokens: list[str], title: str, body: str
+    tokens: list[str], title: str, body: str, data: dict[str, str] | None = None
 ) -> tuple[int, int, list[str]]:
     """Send notification to all tokens. Returns (success, failure, bad_tokens)."""
     if _app is None:
@@ -52,6 +43,7 @@ def send_broadcast(
         messages = [
             messaging.Message(
                 notification=messaging.Notification(title=title, body=body),
+                data=data,
                 token=token,
             )
             for token in batch

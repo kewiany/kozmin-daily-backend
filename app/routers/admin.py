@@ -134,7 +134,13 @@ async def broadcast_notification(
             success=0, failure=0, total_tokens=0
         )
 
-    success, failure, bad_tokens = send_broadcast(tokens, body.title, body.body)
+    data: dict[str, str] | None = None
+    if body.event_id is not None:
+        data = {"type": "event", "id": str(body.event_id)}
+    elif body.initiative_id is not None:
+        data = {"type": "initiative", "id": str(body.initiative_id)}
+
+    success, failure, bad_tokens = send_broadcast(tokens, body.title, body.body, data)
 
     if bad_tokens:
         for user in users:

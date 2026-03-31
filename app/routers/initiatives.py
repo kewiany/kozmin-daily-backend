@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -70,3 +70,18 @@ async def list_past_initiatives(
         .limit(limit)
     )
     return result.scalars().all()
+
+
+@router.get("/{initiative_id}", response_model=InitiativeOut)
+async def get_initiative(initiative_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Initiative)
+        .options(selectinload(Initiative.club))
+        .where(Initiative.id == initiative_id, Initiative.status == "approved")
+    )
+    initiative = result.scalar_one_or_none()
+    if not initiative:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Initiative not found"
+        )
+    return initiative
