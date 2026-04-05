@@ -26,6 +26,7 @@ def upgrade() -> None:
     # 2. Convert audience from String to ARRAY(String)
     # First update existing values to short keys (still as plain string)
     op.execute("UPDATE events SET audience = 'open' WHERE LOWER(audience) = 'otwarte'")
+    op.execute("UPDATE events SET audience = 'open' WHERE LOWER(audience) = 'wszyscy'")
     op.execute("UPDATE events SET audience = 'students' WHERE LOWER(audience) = 'studenci'")
     op.execute("UPDATE events SET audience = 'candidates' WHERE LOWER(audience) = 'kandydaci'")
     op.execute("UPDATE events SET audience = 'alumni' WHERE LOWER(audience) = 'absolwenci'")
