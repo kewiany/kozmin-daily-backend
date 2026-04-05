@@ -21,7 +21,6 @@ async def search(
     audience: str | None = None,
     event_type: str | None = None,
     language: str | None = None,
-    category: str | None = None,
     skip: int = 0,
     limit: int = Query(default=30, le=100),
     db: AsyncSession = Depends(get_db),
@@ -42,9 +41,6 @@ async def search(
         query = query.where(Event.event_type == event_type)
     if language:
         query = query.where(Event.language == language)
-    if category:
-        query = query.where(Event.category == category)
-
     query = (
         query.order_by(Event.start_date.desc(), Event.start_time.desc())
         .offset(skip)

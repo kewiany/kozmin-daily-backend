@@ -2,37 +2,22 @@ import datetime as dt
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
 from app.schemas.club import ClubBrief
 
-VALID_CATEGORIES = [
-    "Wydarzenie merytoryczne",
-    "Targi",
-    "Rekrutacja",
-    "Integracja",
-    "Wydarzenie sportowe",
-]
-
-CategoryType = Literal[
-    "Wydarzenie merytoryczne",
-    "Targi",
-    "Rekrutacja",
-    "Integracja",
-    "Wydarzenie sportowe",
-]
+EventTypeKey = Literal["merit", "fair", "recruitment", "integration", "sport"]
 
 
 class EventCreate(BaseModel):
     title: str
     description: str | None = None
-    category: CategoryType | None = None
+    event_type: EventTypeKey | None = None
     start_date: dt.date
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
     audience: str | None = None
-    event_type: str | None = None
     language: str | None = None
     address_name: str | None = None
     address_street: str | None = None
@@ -43,13 +28,12 @@ class EventCreate(BaseModel):
 class EventUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
-    category: CategoryType | None = None
+    event_type: EventTypeKey | None = None
     start_date: dt.date | None = None
     start_time: dt.time | None = None
     end_date: dt.date | None = None
     end_time: dt.time | None = None
     audience: str | None = None
-    event_type: str | None = None
     language: str | None = None
     address_name: str | None = None
     address_street: str | None = None
@@ -61,13 +45,12 @@ class EventOut(BaseModel):
     id: int
     title: str
     description: str | None
-    category: str | None = None
+    event_type: str | None = None
     start_date: dt.date
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
     audience: str | None = None
-    event_type: str | None = None
     language: str | None = None
     address_name: str | None = None
     address_street: str | None = None

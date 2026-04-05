@@ -37,7 +37,7 @@ class EventOut(BaseModel):
     id: int
     title: str
     description: str | None
-    category: str | None = None
+    event_type: str | None = None
     start_date: dt.date
     start_time: dt.time
     end_date: dt.date
