@@ -1,6 +1,7 @@
 from datetime import date
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -29,16 +30,23 @@ async def list_initiatives(
 
 @router.get("/all", response_model=list[InitiativeOut])
 async def list_all_initiatives(
-    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
+    skip: int = 0,
+    limit: int = 100,
+    date_from: Optional[date] = Query(None),
+    date_to: Optional[date] = Query(None),
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
+    query = (
         select(Initiative)
         .options(selectinload(Initiative.club))
         .where(Initiative.status == "approved")
-        .order_by(Initiative.start_date.asc(), Initiative.start_time.asc())
-        .offset(skip)
-        .limit(limit)
     )
+    if date_from:
+        query = query.where(Initiative.start_date >= date_from)
+    if date_to:
+        query = query.where(Initiative.start_date <= date_to)
+    query = query.order_by(Initiative.start_date.asc(), Initiative.start_time.asc()).offset(skip).limit(limit)
+    result = await db.execute(query)
     return result.scalars().all()
 
 

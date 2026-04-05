@@ -1,6 +1,7 @@
 from datetime import date
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -29,16 +30,23 @@ async def list_events(
 
 @router.get("/all", response_model=list[EventOut])
 async def list_all_events(
-    skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)
+    skip: int = 0,
+    limit: int = 100,
+    date_from: Optional[date] = Query(None),
+    date_to: Optional[date] = Query(None),
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
+    query = (
         select(Event)
         .options(selectinload(Event.club))
         .where(Event.status == "approved")
-        .order_by(Event.start_date.asc(), Event.start_time.asc())
-        .offset(skip)
-        .limit(limit)
     )
+    if date_from:
+        query = query.where(Event.start_date >= date_from)
+    if date_to:
+        query = query.where(Event.start_date <= date_to)
+    query = query.order_by(Event.start_date.asc(), Event.start_time.asc()).offset(skip).limit(limit)
+    result = await db.execute(query)
     return result.scalars().all()
 
 
