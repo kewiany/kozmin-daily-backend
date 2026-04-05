@@ -2,6 +2,7 @@ import datetime as dt
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text, Time
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -18,8 +19,9 @@ class Event(Base):
     end_date: Mapped[dt.date] = mapped_column(Date, nullable=False)
     end_time: Mapped[dt.time] = mapped_column(Time, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
-    audience: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    audience: Mapped[list[str] | None] = mapped_column(ARRAY(String(20)), nullable=True)
     event_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    mode: Mapped[str | None] = mapped_column(String(20), nullable=True)
     language: Mapped[str | None] = mapped_column(String(50), nullable=True)
     address_name: Mapped[str | None] = mapped_column(String(300), nullable=True)
     address_street: Mapped[str | None] = mapped_column(String(300), nullable=True)

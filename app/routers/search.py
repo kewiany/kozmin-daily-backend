@@ -20,6 +20,7 @@ async def search(
     q: str = "",
     audience: str | None = None,
     event_type: str | None = None,
+    mode: str | None = None,
     language: str | None = None,
     skip: int = 0,
     limit: int = Query(default=30, le=100),
@@ -36,9 +37,11 @@ async def search(
             Event.title.ilike(pattern) | Event.description.ilike(pattern)
         )
     if audience:
-        query = query.where(Event.audience == audience)
+        query = query.where(Event.audience.contains([audience]))
     if event_type:
         query = query.where(Event.event_type == event_type)
+    if mode:
+        query = query.where(Event.mode == mode)
     if language:
         query = query.where(Event.language == language)
     query = (

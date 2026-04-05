@@ -7,6 +7,9 @@ from pydantic import BaseModel
 from app.schemas.club import ClubBrief
 
 EventTypeKey = Literal["merit", "fair", "recruitment", "integration", "sport"]
+AudienceKey = Literal["open", "students", "candidates", "alumni"]
+ModeKey = Literal["online", "offline", "hybrid"]
+LanguageKey = Literal["pl", "en"]
 
 
 class EventCreate(BaseModel):
@@ -17,8 +20,9 @@ class EventCreate(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
-    audience: str | None = None
-    language: str | None = None
+    audience: list[AudienceKey] | None = None
+    mode: ModeKey | None = None
+    language: LanguageKey | None = None
     address_name: str | None = None
     address_street: str | None = None
     address_city: str | None = None
@@ -33,8 +37,9 @@ class EventUpdate(BaseModel):
     start_time: dt.time | None = None
     end_date: dt.date | None = None
     end_time: dt.time | None = None
-    audience: str | None = None
-    language: str | None = None
+    audience: list[AudienceKey] | None = None
+    mode: ModeKey | None = None
+    language: LanguageKey | None = None
     address_name: str | None = None
     address_street: str | None = None
     address_city: str | None = None
@@ -50,7 +55,8 @@ class EventOut(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
-    audience: str | None = None
+    audience: list[str] | None = None
+    mode: str | None = None
     language: str | None = None
     address_name: str | None = None
     address_street: str | None = None

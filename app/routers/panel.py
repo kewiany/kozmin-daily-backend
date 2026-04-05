@@ -65,6 +65,7 @@ async def create_event(
         end_date=body.end_date,
         end_time=body.end_time,
         audience=body.audience,
+        mode=body.mode,
         language=body.language,
         address_name=body.address_name,
         address_street=body.address_street,

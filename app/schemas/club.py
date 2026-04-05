@@ -42,6 +42,9 @@ class EventOut(BaseModel):
     start_time: dt.time
     end_date: dt.date
     end_time: dt.time
+    audience: list[str] | None = None
+    mode: str | None = None
+    language: str | None = None
     address_name: str | None = None
     address_street: str | None = None
     address_city: str | None = None

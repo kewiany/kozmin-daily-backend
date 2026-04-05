@@ -18,6 +18,7 @@ async def list_events(
     skip: int = 0,
     limit: int = 20,
     event_type: str | None = None,
+    mode: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     query = (
@@ -27,6 +28,8 @@ async def list_events(
     )
     if event_type:
         query = query.where(Event.event_type == event_type)
+    if mode:
+        query = query.where(Event.mode == mode)
     query = query.order_by(Event.start_date.desc(), Event.start_time.desc()).offset(skip).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
@@ -39,6 +42,7 @@ async def list_all_events(
     date_from: Optional[date] = Query(None),
     date_to: Optional[date] = Query(None),
     event_type: str | None = None,
+    mode: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     query = (
@@ -52,6 +56,8 @@ async def list_all_events(
         query = query.where(Event.start_date <= date_to)
     if event_type:
         query = query.where(Event.event_type == event_type)
+    if mode:
+        query = query.where(Event.mode == mode)
     query = query.order_by(Event.start_date.asc(), Event.start_time.asc()).offset(skip).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
@@ -62,6 +68,7 @@ async def list_upcoming_events(
     skip: int = 0,
     limit: int = 20,
     event_type: str | None = None,
+    mode: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     query = (
@@ -71,6 +78,8 @@ async def list_upcoming_events(
     )
     if event_type:
         query = query.where(Event.event_type == event_type)
+    if mode:
+        query = query.where(Event.mode == mode)
     query = query.order_by(Event.start_date.asc(), Event.start_time.asc()).offset(skip).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
@@ -81,6 +90,7 @@ async def list_past_events(
     skip: int = 0,
     limit: int = 20,
     event_type: str | None = None,
+    mode: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     query = (
@@ -90,6 +100,8 @@ async def list_past_events(
     )
     if event_type:
         query = query.where(Event.event_type == event_type)
+    if mode:
+        query = query.where(Event.mode == mode)
     query = query.order_by(Event.start_date.desc(), Event.start_time.desc()).offset(skip).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
