@@ -26,6 +26,7 @@ class Event(Base):
     address_city: Mapped[str | None] = mapped_column(String(200), nullable=True)
     room_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     is_highlighted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False

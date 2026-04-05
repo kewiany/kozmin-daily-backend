@@ -23,13 +23,12 @@ async def get_club(club_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Club)
         .where(Club.id == club_id)
-        .options(selectinload(Club.events), selectinload(Club.initiatives))
+        .options(selectinload(Club.events))
     )
     club = result.scalar_one_or_none()
     if not club:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Club not found")
 
-    # Filter to only approved events and initiatives
+    # Filter to only approved events
     club.events = [e for e in club.events if e.status == "approved"]
-    club.initiatives = [i for i in club.initiatives if i.status == "approved"]
     return club

@@ -15,16 +15,20 @@ router = APIRouter(prefix="/api/v1/events", tags=["events"])
 
 @router.get("", response_model=list[EventOut])
 async def list_events(
-    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+    skip: int = 0,
+    limit: int = 20,
+    category: str | None = None,
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
+    query = (
         select(Event)
         .options(selectinload(Event.club))
         .where(Event.status == "approved")
-        .order_by(Event.start_date.desc(), Event.start_time.desc())
-        .offset(skip)
-        .limit(limit)
     )
+    if category:
+        query = query.where(Event.category == category)
+    query = query.order_by(Event.start_date.desc(), Event.start_time.desc()).offset(skip).limit(limit)
+    result = await db.execute(query)
     return result.scalars().all()
 
 
@@ -34,6 +38,7 @@ async def list_all_events(
     limit: int = 100,
     date_from: Optional[date] = Query(None),
     date_to: Optional[date] = Query(None),
+    category: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     query = (
@@ -45,6 +50,8 @@ async def list_all_events(
         query = query.where(Event.start_date >= date_from)
     if date_to:
         query = query.where(Event.start_date <= date_to)
+    if category:
+        query = query.where(Event.category == category)
     query = query.order_by(Event.start_date.asc(), Event.start_time.asc()).offset(skip).limit(limit)
     result = await db.execute(query)
     return result.scalars().all()
@@ -52,31 +59,39 @@ async def list_all_events(
 
 @router.get("/upcoming", response_model=list[EventOut])
 async def list_upcoming_events(
-    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+    skip: int = 0,
+    limit: int = 20,
+    category: str | None = None,
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
+    query = (
         select(Event)
         .options(selectinload(Event.club))
         .where(Event.status == "approved", Event.start_date >= date.today())
-        .order_by(Event.start_date.asc(), Event.start_time.asc())
-        .offset(skip)
-        .limit(limit)
     )
+    if category:
+        query = query.where(Event.category == category)
+    query = query.order_by(Event.start_date.asc(), Event.start_time.asc()).offset(skip).limit(limit)
+    result = await db.execute(query)
     return result.scalars().all()
 
 
 @router.get("/past", response_model=list[EventOut])
 async def list_past_events(
-    skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
+    skip: int = 0,
+    limit: int = 20,
+    category: str | None = None,
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(
+    query = (
         select(Event)
         .options(selectinload(Event.club))
         .where(Event.status == "approved", Event.start_date < date.today())
-        .order_by(Event.start_date.desc(), Event.start_time.desc())
-        .offset(skip)
-        .limit(limit)
     )
+    if category:
+        query = query.where(Event.category == category)
+    query = query.order_by(Event.start_date.desc(), Event.start_time.desc()).offset(skip).limit(limit)
+    result = await db.execute(query)
     return result.scalars().all()
 
 
