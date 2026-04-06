@@ -46,7 +46,13 @@ async def firebase_auth(
     )
     user = result.scalar_one_or_none()
 
-    # Link existing account by phone or email
+    # Link existing account by apple_user_id, phone or email
+    if user is None and body.apple_user_id:
+        result = await db.execute(
+            select(User).where(User.apple_user_id == body.apple_user_id)
+        )
+        user = result.scalar_one_or_none()
+
     if user is None and phone_number:
         result = await db.execute(
             select(User).where(User.phone == phone_number)
@@ -61,6 +67,12 @@ async def firebase_auth(
 
     if user is not None:
         changed = False
+        if not user.firebase_uid:
+            user.firebase_uid = firebase_uid
+            changed = True
+        if body.apple_user_id and not user.apple_user_id:
+            user.apple_user_id = body.apple_user_id
+            changed = True
         if phone_number and not user.phone:
             user.phone = phone_number
             changed = True
@@ -79,6 +91,7 @@ async def firebase_auth(
     else:
         user = User(
             firebase_uid=firebase_uid,
+            apple_user_id=body.apple_user_id,
             phone=phone_number,
             email=email,
             first_name=body.first_name,
