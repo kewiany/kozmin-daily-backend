@@ -10,8 +10,11 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    apple_user_id: Mapped[str] = mapped_column(
-        String(255), unique=True, nullable=False
+    apple_user_id: Mapped[str | None] = mapped_column(
+        String(255), unique=True, nullable=True
+    )
+    firebase_uid: Mapped[str | None] = mapped_column(
+        String(255), unique=True, nullable=True
     )
     email: Mapped[str | None] = mapped_column(String(200), nullable=True)
     first_name: Mapped[str | None] = mapped_column(String(100), nullable=True)

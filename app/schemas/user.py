@@ -8,6 +8,10 @@ class AppleAuthRequest(BaseModel):
     last_name: str | None = None
 
 
+class FirebaseAuthRequest(BaseModel):
+    id_token: str
+
+
 class UserResponse(BaseModel):
     id: int
     email: str | None = None

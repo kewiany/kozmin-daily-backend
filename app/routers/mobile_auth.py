@@ -7,11 +7,13 @@ from app.auth import create_access_token, verify_apple_token
 from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user
+from app.firebase import verify_firebase_token
 from app.models.user import User
 from app.schemas.notification import FCMTokenRequest
 from app.schemas.user import (
     AppleAuthRequest,
     AuthResponse,
+    FirebaseAuthRequest,
     PhoneUpdateRequest,
     ProfileUpdateRequest,
     UserResponse,
@@ -63,6 +65,45 @@ async def apple_auth(
             user.first_name = body.first_name
         if body.last_name and not user.last_name:
             user.last_name = body.last_name
+        await db.commit()
+        await db.refresh(user)
+
+    token = create_access_token(
+        subject_id=user.id, role="user", entity_type="user"
+    )
+
+    return AuthResponse(
+        access_token=token,
+        needs_profile=_needs_profile(user),
+        needs_phone=user.phone is None,
+        user=UserResponse.model_validate(user),
+    )
+
+
+@router.post("/auth/firebase", response_model=AuthResponse)
+async def firebase_auth(
+    body: FirebaseAuthRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        payload = verify_firebase_token(body.id_token)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid Firebase token: {e}",
+        )
+
+    firebase_uid = payload["uid"]
+    phone_number = payload.get("phone_number")
+
+    result = await db.execute(
+        select(User).where(User.firebase_uid == firebase_uid)
+    )
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        user = User(firebase_uid=firebase_uid, phone=phone_number)
+        db.add(user)
         await db.commit()
         await db.refresh(user)
 

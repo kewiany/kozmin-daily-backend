@@ -3,7 +3,7 @@ import logging
 import os
 
 import firebase_admin
-from firebase_admin import credentials, messaging
+from firebase_admin import auth, credentials, messaging
 
 logger = logging.getLogger(__name__)
 
@@ -63,3 +63,12 @@ def send_broadcast(
                     bad_tokens.append(batch[j])
 
     return success, failure, bad_tokens
+
+
+def verify_firebase_token(id_token: str) -> dict:
+    """Verify a Firebase ID token and return the decoded payload.
+
+    Raises firebase_admin.auth.InvalidIdTokenError on invalid tokens.
+    """
+    decoded = auth.verify_id_token(id_token)
+    return decoded
