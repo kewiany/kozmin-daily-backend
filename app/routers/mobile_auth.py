@@ -48,6 +48,16 @@ async def apple_auth(
     )
     user = result.scalar_one_or_none()
 
+    if user is None and body.email:
+        result = await db.execute(
+            select(User).where(User.email == body.email)
+        )
+        user = result.scalar_one_or_none()
+        if user is not None:
+            user.apple_user_id = apple_user_id
+            await db.commit()
+            await db.refresh(user)
+
     if user is None:
         user = User(
             apple_user_id=apple_user_id,
@@ -100,6 +110,16 @@ async def firebase_auth(
         select(User).where(User.firebase_uid == firebase_uid)
     )
     user = result.scalar_one_or_none()
+
+    if user is None and phone_number:
+        result = await db.execute(
+            select(User).where(User.phone == phone_number)
+        )
+        user = result.scalar_one_or_none()
+        if user is not None:
+            user.firebase_uid = firebase_uid
+            await db.commit()
+            await db.refresh(user)
 
     if user is None:
         user = User(firebase_uid=firebase_uid, phone=phone_number)
