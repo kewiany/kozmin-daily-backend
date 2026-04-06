@@ -67,11 +67,23 @@ async def firebase_auth(
         if email and not user.email:
             user.email = email
             changed = True
+        if body.first_name and not user.first_name:
+            user.first_name = body.first_name
+            changed = True
+        if body.last_name and not user.last_name:
+            user.last_name = body.last_name
+            changed = True
         if changed:
             await db.commit()
             await db.refresh(user)
     else:
-        user = User(firebase_uid=firebase_uid, phone=phone_number, email=email)
+        user = User(
+            firebase_uid=firebase_uid,
+            phone=phone_number,
+            email=email,
+            first_name=body.first_name,
+            last_name=body.last_name,
+        )
         db.add(user)
         await db.commit()
         await db.refresh(user)
