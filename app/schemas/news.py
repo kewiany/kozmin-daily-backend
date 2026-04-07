@@ -8,11 +8,13 @@ from app.schemas.club import ClubBrief
 class NewsCreate(BaseModel):
     title: str
     description: str
+    is_highlighted: bool = False
 
 
 class NewsUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
+    is_highlighted: bool | None = None
 
 
 class NewsOut(BaseModel):
@@ -20,6 +22,7 @@ class NewsOut(BaseModel):
     title: str
     description: str
     club_id: int
+    is_highlighted: bool = False
     club: ClubBrief | None = None
     created_at: datetime
 
