@@ -29,6 +29,7 @@ def upgrade() -> None:
         {"key": "game_enabled", "value": "true"},
         {"key": "game_url", "value": "https://kozmingame.vercel.app"},
         {"key": "developed_by", "value": "Samorząd Przyszłości 2026-2028"},
+        {"key": "developed_by_url", "value": "https://www.instagram.com/samorzad_przyszlosci"},
     ])
 
 
