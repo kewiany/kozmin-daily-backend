@@ -29,4 +29,3 @@ class Club(Base):
     )
 
     events = relationship("Event", back_populates="club", cascade="all, delete-orphan")
-    news = relationship("News", back_populates="club", cascade="all, delete-orphan")
