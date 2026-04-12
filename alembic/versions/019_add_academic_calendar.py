@@ -5,6 +5,7 @@ Revises: 018
 Create Date: 2026-04-12
 
 """
+from datetime import date
 from typing import Sequence, Union
 
 from alembic import op
@@ -18,6 +19,11 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 YEAR = "2025/2026"
+
+def _d(s: str) -> date:
+    """Parse 'YYYY-MM-DD' string to date object."""
+    y, m, d = s.split("-")
+    return date(int(y), int(m), int(d))
 
 
 def upgrade() -> None:
@@ -40,25 +46,25 @@ def upgrade() -> None:
 
     # Semestr zimowy
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="zimowy", category="zajecia",
-                     title="Zajęcia dydaktyczne", start_date="2025-09-29", end_date="2026-01-30", college=None))
+                     title="Zajęcia dydaktyczne", start_date=_d("2025-09-29"), end_date=_d("2026-01-30"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="zimowy", category="sesja",
-                     title="Sesja egzaminacyjna", start_date="2026-02-02", end_date="2026-02-13", college=None))
+                     title="Sesja egzaminacyjna", start_date=_d("2026-02-02"), end_date=_d("2026-02-13"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="zimowy", category="przerwa",
-                     title="Przerwa międzysemestralna", start_date="2026-02-16", end_date="2026-02-20", college=None))
+                     title="Przerwa międzysemestralna", start_date=_d("2026-02-16"), end_date=_d("2026-02-20"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="zimowy", category="poprawki",
-                     title="Sesja poprawkowa", start_date="2026-03-02", end_date="2026-03-20", college=None))
+                     title="Sesja poprawkowa", start_date=_d("2026-03-02"), end_date=_d("2026-03-20"), college=None))
 
     # Semestr letni
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="letni", category="zajecia",
-                     title="Zajęcia dydaktyczne", start_date="2026-02-23", end_date="2026-06-16", college=None))
+                     title="Zajęcia dydaktyczne", start_date=_d("2026-02-23"), end_date=_d("2026-06-16"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KZiFiE)", start_date="2026-06-17", end_date="2026-06-30", college="KZiFiE"))
+                     title="Sesja egzaminacyjna (KZiFiE)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KZiFiE"))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KIBS)", start_date="2026-06-17", end_date="2026-06-30", college="KIBS"))
+                     title="Sesja egzaminacyjna (KIBS)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KIBS"))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KP)", start_date="2026-06-17", end_date="2026-06-30", college="KP"))
+                     title="Sesja egzaminacyjna (KP)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KP"))
     rows.append(dict(academic_year=YEAR, study_mode="stacjonarne", semester="letni", category="poprawki",
-                     title="Sesja poprawkowa", start_date="2026-09-01", end_date="2026-09-16", college=None))
+                     title="Sesja poprawkowa", start_date=_d("2026-09-01"), end_date=_d("2026-09-16"), college=None))
 
     # ── STUDIA NIESTACJONARNE — ZJAZDY ──────────────────────────────────
 
@@ -73,7 +79,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kzifie_zim, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="zimowy", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KZiFiE"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KZiFiE"))
 
     # KZiFiE — semestr letni
     kzifie_let = [
@@ -86,7 +92,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kzifie_let, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KZiFiE"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KZiFiE"))
 
     # KIBS — semestr zimowy
     kibs_zim = [
@@ -98,7 +104,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kibs_zim, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="zimowy", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KIBS"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KIBS"))
 
     # KIBS — semestr letni
     kibs_let = [
@@ -111,7 +117,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kibs_let, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KIBS"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KIBS"))
 
     # KP — semestr zimowy
     kp_zim = [
@@ -123,7 +129,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kp_zim, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="zimowy", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KP"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KP"))
 
     # KP — semestr letni
     kp_let = [
@@ -136,7 +142,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kp_let, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KP"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KP"))
 
     # ── STUDIA NIESTACJONARNE ONLINE — ZJAZDY ──────────────────────────
 
@@ -151,7 +157,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kzifie_online_zim, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="zimowy", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KZiFiE"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KZiFiE"))
 
     # KZiFiE online — semestr letni
     kzifie_online_let = [
@@ -164,7 +170,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kzifie_online_let, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KZiFiE"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KZiFiE"))
 
     # KIBS online — semestr zimowy
     kibs_online_zim = [
@@ -176,7 +182,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kibs_online_zim, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="zimowy", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KIBS"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KIBS"))
 
     # KIBS online — semestr letni
     kibs_online_let = [
@@ -189,7 +195,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kibs_online_let, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KIBS"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KIBS"))
 
     # KP online — semestr zimowy
     kp_online_zim = [
@@ -201,7 +207,7 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kp_online_zim, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="zimowy", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KP"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KP"))
 
     # KP online — semestr letni
     kp_online_let = [
@@ -214,45 +220,45 @@ def upgrade() -> None:
     ]
     for i, (s, e) in enumerate(kp_online_let, 1):
         rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="zjazd",
-                         title=f"Zjazd {i}", start_date=s, end_date=e, college="KP"))
+                         title=f"Zjazd {i}", start_date=_d(s), end_date=_d(e), college="KP"))
 
     # ── Niestacjonarne — sesje i przerwy ────────────────────────────────
 
     # Semestr zimowy
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="zimowy", category="sesja",
-                     title="Sesja egzaminacyjna", start_date="2026-02-02", end_date="2026-02-13", college=None))
+                     title="Sesja egzaminacyjna", start_date=_d("2026-02-02"), end_date=_d("2026-02-13"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="zimowy", category="przerwa",
-                     title="Przerwa międzysemestralna", start_date="2026-02-16", end_date="2026-02-20", college=None))
+                     title="Przerwa międzysemestralna", start_date=_d("2026-02-16"), end_date=_d("2026-02-20"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="zimowy", category="poprawki",
-                     title="Sesja poprawkowa", start_date="2026-03-02", end_date="2026-03-20", college=None))
+                     title="Sesja poprawkowa", start_date=_d("2026-03-02"), end_date=_d("2026-03-20"), college=None))
 
     # Semestr letni
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KZiFiE)", start_date="2026-06-17", end_date="2026-06-30", college="KZiFiE"))
+                     title="Sesja egzaminacyjna (KZiFiE)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KZiFiE"))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KIBS)", start_date="2026-06-17", end_date="2026-06-30", college="KIBS"))
+                     title="Sesja egzaminacyjna (KIBS)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KIBS"))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KP)", start_date="2026-06-17", end_date="2026-06-30", college="KP"))
+                     title="Sesja egzaminacyjna (KP)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KP"))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne", semester="letni", category="poprawki",
-                     title="Sesja poprawkowa", start_date="2026-09-01", end_date="2026-09-16", college=None))
+                     title="Sesja poprawkowa", start_date=_d("2026-09-01"), end_date=_d("2026-09-16"), college=None))
 
     # ── Niestacjonarne online — sesje i przerwy ────────────────────────
 
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="zimowy", category="sesja",
-                     title="Sesja egzaminacyjna", start_date="2026-02-02", end_date="2026-02-13", college=None))
+                     title="Sesja egzaminacyjna", start_date=_d("2026-02-02"), end_date=_d("2026-02-13"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="zimowy", category="przerwa",
-                     title="Przerwa międzysemestralna", start_date="2026-02-16", end_date="2026-02-20", college=None))
+                     title="Przerwa międzysemestralna", start_date=_d("2026-02-16"), end_date=_d("2026-02-20"), college=None))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="zimowy", category="poprawki",
-                     title="Sesja poprawkowa", start_date="2026-03-02", end_date="2026-03-20", college=None))
+                     title="Sesja poprawkowa", start_date=_d("2026-03-02"), end_date=_d("2026-03-20"), college=None))
 
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KZiFiE)", start_date="2026-06-17", end_date="2026-06-30", college="KZiFiE"))
+                     title="Sesja egzaminacyjna (KZiFiE)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KZiFiE"))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KIBS)", start_date="2026-06-17", end_date="2026-06-30", college="KIBS"))
+                     title="Sesja egzaminacyjna (KIBS)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KIBS"))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="sesja",
-                     title="Sesja egzaminacyjna (KP)", start_date="2026-06-17", end_date="2026-06-30", college="KP"))
+                     title="Sesja egzaminacyjna (KP)", start_date=_d("2026-06-17"), end_date=_d("2026-06-30"), college="KP"))
     rows.append(dict(academic_year=YEAR, study_mode="niestacjonarne_online", semester="letni", category="poprawki",
-                     title="Sesja poprawkowa", start_date="2026-09-01", end_date="2026-09-16", college=None))
+                     title="Sesja poprawkowa", start_date=_d("2026-09-01"), end_date=_d("2026-09-16"), college=None))
 
     op.bulk_insert(table, rows)
 
