@@ -21,6 +21,9 @@ class Club(Base):
     facebook_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     instagram_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     website_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    linkedin_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    supervisor: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc), nullable=False
     )

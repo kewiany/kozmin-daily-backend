@@ -24,6 +24,9 @@ class ClubOut(BaseModel):
     facebook_url: str | None = None
     instagram_url: str | None = None
     website_url: str | None = None
+    linkedin_url: str | None = None
+    supervisor: str | None = None
+    category: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
