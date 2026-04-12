@@ -81,6 +81,8 @@ async def broadcast_notification(
     data: dict[str, str] | None = None
     if body.event_id is not None:
         data = {"type": "event", "id": str(body.event_id)}
+    elif body.news_id is not None:
+        data = {"type": "news", "id": str(body.news_id)}
 
     success, failure, bad_tokens = send_broadcast(tokens, body.title, body.body, data)
 
