@@ -97,6 +97,8 @@ async def update_event(
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(event, field, value)
 
+    event.status = "pending"
+
     await db.commit()
     await db.refresh(event)
     return event
