@@ -14,6 +14,7 @@ class News(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     author: Mapped[str | None] = mapped_column(String(200), nullable=True)
     is_highlighted: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
     )

@@ -17,6 +17,7 @@ async def list_news(
 ):
     query = (
         select(News)
+        .where(News.is_archived == False)
         .order_by(News.created_at.desc())
         .offset(skip)
         .limit(limit)
