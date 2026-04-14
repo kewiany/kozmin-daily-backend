@@ -1,19 +1,19 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class NewsCreate(BaseModel):
-    title: str
-    description: str
-    author: str | None = None
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(min_length=1, max_length=3000)
+    author: str | None = Field(default=None, max_length=100)
     is_highlighted: bool = False
 
 
 class NewsUpdate(BaseModel):
-    title: str | None = None
-    description: str | None = None
-    author: str | None = None
+    title: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, min_length=1, max_length=3000)
+    author: str | None = Field(default=None, max_length=100)
     is_highlighted: bool | None = None
 
 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FCMTokenRequest(BaseModel):
@@ -6,8 +6,8 @@ class FCMTokenRequest(BaseModel):
 
 
 class BroadcastNotificationRequest(BaseModel):
-    title: str
-    body: str
+    title: str = Field(min_length=1, max_length=100)
+    body: str = Field(min_length=1, max_length=500)
     event_id: int | None = None
     news_id: int | None = None
 
