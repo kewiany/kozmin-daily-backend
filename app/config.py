@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     PORT: int = 8000
     CORS_ORIGINS: str = "*"
+    DISABLE_DOCS: bool = False
     APPLE_BUNDLE_ID: str = "pl.startupstars.kozmindaily"
     FIREBASE_CREDENTIALS_JSON: str = ""
 

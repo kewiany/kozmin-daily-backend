@@ -5,14 +5,21 @@ from app.config import settings
 from app.firebase import init_firebase
 from app.routers import academic_calendar, admin, auth, clubs, config, events, mobile_auth, news, panel, search
 
-app = FastAPI(title="Kozmin Daily API", version="1.0.0")
+app = FastAPI(
+    title="Kozmin Daily API",
+    version="1.0.0",
+    docs_url=None if settings.DISABLE_DOCS else "/docs",
+    redoc_url=None if settings.DISABLE_DOCS else "/redoc",
+    openapi_url=None if settings.DISABLE_DOCS else "/openapi.json",
+)
 
 origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
+allow_all = origins == ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=not allow_all,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -33,4 +40,4 @@ app.include_router(academic_calendar.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Kozmin Daily API", "docs": "/docs"}
+    return {"message": "Kozmin Daily API"}
