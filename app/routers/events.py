@@ -24,7 +24,7 @@ async def list_events(
     query = (
         select(Event)
         .options(selectinload(Event.club))
-        .where(Event.status == "approved")
+        .where(Event.status == "approved", Event.is_archived == False)
     )
     if event_type:
         query = query.where(Event.event_type == event_type)
@@ -48,7 +48,7 @@ async def list_all_events(
     query = (
         select(Event)
         .options(selectinload(Event.club))
-        .where(Event.status == "approved")
+        .where(Event.status == "approved", Event.is_archived == False)
     )
     if date_from:
         query = query.where(Event.start_date >= date_from)

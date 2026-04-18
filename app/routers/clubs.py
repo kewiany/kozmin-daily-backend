@@ -30,5 +30,5 @@ async def get_club(club_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Club not found")
 
     # Filter to only approved events
-    club.events = [e for e in club.events if e.status == "approved"]
+    club.events = [e for e in club.events if e.status == "approved" and not e.is_archived]
     return club
