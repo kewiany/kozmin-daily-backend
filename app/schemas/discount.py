@@ -8,6 +8,7 @@ class DiscountOut(BaseModel):
     title: str
     description: str | None = None
     logo_url: str | None = None
+    image_url: str | None = None
     is_highlighted: bool = False
     created_at: datetime
 
