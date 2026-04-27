@@ -14,7 +14,7 @@ async def list_discounts(db: AsyncSession = Depends(get_db)):
     query = (
         select(Discount)
         .where(Discount.is_archived == False)
-        .order_by(Discount.title.asc())
+        .order_by(Discount.is_pinned.desc(), Discount.priority.desc(), Discount.title.asc())
     )
     result = await db.execute(query)
     return result.scalars().all()

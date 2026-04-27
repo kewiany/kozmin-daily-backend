@@ -13,7 +13,9 @@ router = APIRouter(prefix="/api/v1/clubs", tags=["clubs"])
 @router.get("", response_model=list[ClubOut])
 async def list_clubs(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(Club).where(Club.role != "admin", Club.is_archived == False).order_by(Club.name)
+        select(Club)
+        .where(Club.role != "admin", Club.is_archived == False)
+        .order_by(Club.is_pinned.desc(), Club.priority.desc(), Club.name)
     )
     return result.scalars().all()
 

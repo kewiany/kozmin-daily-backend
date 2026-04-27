@@ -27,6 +27,8 @@ class ClubOut(BaseModel):
     linkedin_url: str | None = None
     supervisor: str | None = None
     category: str | None = None
+    is_pinned: bool = False
+    priority: int = 0
     created_at: datetime
 
     model_config = {"from_attributes": True}
