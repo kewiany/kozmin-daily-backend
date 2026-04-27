@@ -11,6 +11,7 @@ class DiscountOut(BaseModel):
     logo_url: str | None = None
     image_url: str | None = None
     address: str | None = None
+    is_online: bool = False
     is_highlighted: bool = False
     is_pinned: bool = False
     priority: int = 0

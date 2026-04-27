@@ -16,6 +16,7 @@ class Discount(Base):
     logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     address: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    is_online: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     is_highlighted: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     is_pinned: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     priority: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
