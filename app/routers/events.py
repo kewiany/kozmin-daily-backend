@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -71,10 +71,16 @@ async def list_upcoming_events(
     mode: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
+    now = datetime.now(timezone.utc)
+    today = now.date()
+    current_time = now.time()
     query = (
         select(Event)
         .options(selectinload(Event.club))
-        .where(Event.status == "approved", Event.start_date >= date.today())
+        .where(
+            Event.status == "approved",
+            (Event.end_date > today) | ((Event.end_date == today) & (Event.end_time >= current_time)),
+        )
     )
     if event_type:
         query = query.where(Event.event_type == event_type)
@@ -93,10 +99,16 @@ async def list_past_events(
     mode: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
+    now = datetime.now(timezone.utc)
+    today = now.date()
+    current_time = now.time()
     query = (
         select(Event)
         .options(selectinload(Event.club))
-        .where(Event.status == "approved", Event.start_date < date.today())
+        .where(
+            Event.status == "approved",
+            (Event.end_date < today) | ((Event.end_date == today) & (Event.end_time < current_time)),
+        )
     )
     if event_type:
         query = query.where(Event.event_type == event_type)
