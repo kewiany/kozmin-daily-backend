@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.schemas.club import ClubBrief
 
-EventTypeKey = Literal["merit", "fair", "recruitment", "integration", "sport", "conference"]
+EventTypeKey = Literal["merit", "fair", "recruitment", "integration", "sport", "conference", "workshop"]
 AudienceKey = Literal["open", "students", "candidates", "alumni"]
 ModeKey = Literal["online", "offline", "hybrid"]
 LanguageKey = Literal["pl", "en"]
