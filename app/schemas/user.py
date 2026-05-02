@@ -13,6 +13,7 @@ class FirebaseAuthRequest(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     apple_user_id: str | None = None
+    platform: str | None = None
 
 
 class UserResponse(BaseModel):
