@@ -12,6 +12,8 @@ class NewsCreate(BaseModel):
     preview_en: str | None = Field(default=None, max_length=500)
     author: str | None = Field(default=None, max_length=100)
     is_highlighted: bool = False
+    is_pinned: bool = False
+    priority: int = 0
 
 
 class NewsUpdate(BaseModel):
@@ -23,6 +25,8 @@ class NewsUpdate(BaseModel):
     preview_en: str | None = Field(default=None, max_length=500)
     author: str | None = Field(default=None, max_length=100)
     is_highlighted: bool | None = None
+    is_pinned: bool | None = None
+    priority: int | None = None
 
 
 class NewsOut(BaseModel):
@@ -35,6 +39,8 @@ class NewsOut(BaseModel):
     preview_en: str | None = None
     author: str | None = None
     is_highlighted: bool = False
+    is_pinned: bool = False
+    priority: int = 0
     created_at: datetime
 
     model_config = {"from_attributes": True}

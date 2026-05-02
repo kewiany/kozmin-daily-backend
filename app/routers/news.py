@@ -18,7 +18,7 @@ async def list_news(
     query = (
         select(News)
         .where(News.is_archived == False)
-        .order_by(News.created_at.desc())
+        .order_by(News.is_pinned.desc(), News.priority.desc(), News.created_at.desc())
         .offset(skip)
         .limit(limit)
     )
