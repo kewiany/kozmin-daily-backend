@@ -19,12 +19,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.execute(
         sa.text(
-            "INSERT INTO feature_flags (key, value) VALUES (:key, :value)"
-        ),
-        [
-            {"key": "profile_info_enabled", "value": "false"},
-            {"key": "profile_info_text", "value": ""},
-        ],
+            "INSERT INTO feature_flags (key, value) VALUES "
+            "('profile_info_enabled', 'true'), "
+            "('profile_info_text', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')"
+        )
     )
 
 
