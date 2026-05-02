@@ -16,7 +16,6 @@ class ClubBrief(BaseModel):
 class ClubOut(BaseModel):
     id: int
     name: str
-    role: str
     logo_url: str | None = None
     type: str
     description: str | None = None
