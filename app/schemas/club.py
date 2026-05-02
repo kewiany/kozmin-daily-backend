@@ -18,7 +18,9 @@ class ClubOut(BaseModel):
     name: str
     logo_url: str | None = None
     type: str
+    type_en: str | None = None
     description: str | None = None
+    description_en: str | None = None
     email: str | None = None
     facebook_url: str | None = None
     instagram_url: str | None = None
@@ -26,6 +28,7 @@ class ClubOut(BaseModel):
     linkedin_url: str | None = None
     supervisor: str | None = None
     category: str | None = None
+    category_en: str | None = None
     is_pinned: bool = False
     priority: int = 0
     created_at: datetime

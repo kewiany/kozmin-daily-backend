@@ -28,6 +28,8 @@ class Event(Base):
     address_city: Mapped[str | None] = mapped_column(String(200), nullable=True)
     room_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     is_highlighted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    title_en: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    description_en: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

@@ -10,6 +10,7 @@ class AcademicCalendarEntryResponse(BaseModel):
     semester: str
     category: str
     title: str
+    title_en: str | None = None
     start_date: dt.date
     end_date: dt.date
     college: str | None = None

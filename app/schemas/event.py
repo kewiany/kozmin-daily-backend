@@ -72,7 +72,9 @@ class EventUpdate(BaseModel):
 class EventOut(BaseModel):
     id: int
     title: str
+    title_en: str | None = None
     description: str | None
+    description_en: str | None = None
     event_type: str | None = None
     start_date: dt.date
     start_time: dt.time

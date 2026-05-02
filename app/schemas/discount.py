@@ -6,8 +6,11 @@ from pydantic import BaseModel
 class DiscountOut(BaseModel):
     id: int
     title: str
+    title_en: str | None = None
     short_description: str | None = None
+    short_description_en: str | None = None
     long_description: str | None = None
+    long_description_en: str | None = None
     logo_url: str | None = None
     image_url: str | None = None
     address: str | None = None
