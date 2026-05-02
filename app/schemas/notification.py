@@ -10,6 +10,7 @@ class BroadcastNotificationRequest(BaseModel):
     body: str = Field(min_length=1, max_length=500)
     event_id: int | None = None
     news_id: int | None = None
+    game: bool = False
 
 
 class BroadcastNotificationResponse(BaseModel):
