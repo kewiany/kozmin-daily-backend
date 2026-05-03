@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.firebase import init_firebase
-from app.routers import academic_calendar, admin, auth, clubs, config, discounts, events, mobile_auth, news, panel, search
+from app.routers import academic_calendar, admin, auth, clubs, config, discounts, events, mobile_auth, news, panel, search, waitlist
 
 app = FastAPI(
     title="Kozmin Daily API",
@@ -37,6 +37,7 @@ app.include_router(news.router)
 app.include_router(config.router)
 app.include_router(academic_calendar.router)
 app.include_router(discounts.router)
+app.include_router(waitlist.router)
 
 
 @app.get("/")
