@@ -13,6 +13,15 @@ class BroadcastNotificationRequest(BaseModel):
     game: bool = False
 
 
+class TestNotificationRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=100)
+    body: str = Field(min_length=1, max_length=500)
+    token: str
+    event_id: int | None = None
+    news_id: int | None = None
+    game: bool = False
+
+
 class BroadcastNotificationResponse(BaseModel):
     success: int
     failure: int

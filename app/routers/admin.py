@@ -12,6 +12,7 @@ from app.schemas.event import EventOut
 from app.schemas.notification import (
     BroadcastNotificationRequest,
     BroadcastNotificationResponse,
+    TestNotificationRequest,
 )
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
@@ -97,3 +98,20 @@ async def broadcast_notification(
     return BroadcastNotificationResponse(
         success=success, failure=failure, total_tokens=len(tokens)
     )
+
+
+@router.post("/notifications/test")
+async def test_notification(
+    body: TestNotificationRequest,
+    _admin: Club = Depends(require_admin_role),
+):
+    data: dict[str, str] | None = None
+    if body.game:
+        data = {"type": "game"}
+    elif body.event_id is not None:
+        data = {"type": "event", "id": str(body.event_id)}
+    elif body.news_id is not None:
+        data = {"type": "news", "id": str(body.news_id)}
+
+    success, failure, _ = send_broadcast([body.token], body.title, body.body, data)
+    return {"success": success, "failure": failure}
