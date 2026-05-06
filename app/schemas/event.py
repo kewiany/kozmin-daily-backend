@@ -27,6 +27,9 @@ class EventCreate(BaseModel):
     address_street: str | None = Field(default=None, max_length=100)
     address_city: str | None = Field(default=None, max_length=100)
     room_number: str | None = Field(default=None, max_length=50)
+    cta_enabled: bool = False
+    cta_button_text: str | None = Field(default=None, max_length=200)
+    cta_link_url: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -55,6 +58,9 @@ class EventUpdate(BaseModel):
     address_street: str | None = Field(default=None, max_length=100)
     address_city: str | None = Field(default=None, max_length=100)
     room_number: str | None = Field(default=None, max_length=50)
+    cta_enabled: bool | None = None
+    cta_button_text: str | None = Field(default=None, max_length=200)
+    cta_link_url: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -88,6 +94,9 @@ class EventOut(BaseModel):
     address_city: str | None = None
     room_number: str | None = None
     is_highlighted: bool = False
+    cta_enabled: bool = False
+    cta_button_text: str | None = None
+    cta_link_url: str | None = None
     status: str
     club_id: int
     club: ClubBrief | None = None

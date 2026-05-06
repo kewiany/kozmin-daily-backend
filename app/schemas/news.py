@@ -41,6 +41,9 @@ class NewsOut(BaseModel):
     is_highlighted: bool = False
     is_pinned: bool = False
     priority: int = 0
+    cta_enabled: bool = False
+    cta_button_text: str | None = None
+    cta_link_url: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
