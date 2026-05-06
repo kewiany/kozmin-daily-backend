@@ -30,6 +30,9 @@ class EventCreate(BaseModel):
     cta_enabled: bool = False
     cta_button_text: str | None = Field(default=None, max_length=200)
     cta_link_url: str | None = Field(default=None, max_length=500)
+    cta2_enabled: bool = False
+    cta2_button_text: str | None = Field(default=None, max_length=200)
+    cta2_link_url: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -61,6 +64,9 @@ class EventUpdate(BaseModel):
     cta_enabled: bool | None = None
     cta_button_text: str | None = Field(default=None, max_length=200)
     cta_link_url: str | None = Field(default=None, max_length=500)
+    cta2_enabled: bool | None = None
+    cta2_button_text: str | None = Field(default=None, max_length=200)
+    cta2_link_url: str | None = Field(default=None, max_length=500)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -97,6 +103,9 @@ class EventOut(BaseModel):
     cta_enabled: bool = False
     cta_button_text: str | None = None
     cta_link_url: str | None = None
+    cta2_enabled: bool = False
+    cta2_button_text: str | None = None
+    cta2_link_url: str | None = None
     status: str
     club_id: int
     club: ClubBrief | None = None

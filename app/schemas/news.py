@@ -44,6 +44,9 @@ class NewsOut(BaseModel):
     cta_enabled: bool = False
     cta_button_text: str | None = None
     cta_link_url: str | None = None
+    cta2_enabled: bool = False
+    cta2_button_text: str | None = None
+    cta2_link_url: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

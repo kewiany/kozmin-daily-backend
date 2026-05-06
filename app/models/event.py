@@ -34,6 +34,9 @@ class Event(Base):
     cta_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
     cta_button_text: Mapped[str | None] = mapped_column(String(200), nullable=True)
     cta_link_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    cta2_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    cta2_button_text: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    cta2_link_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     club_id: Mapped[int] = mapped_column(ForeignKey("clubs.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False
