@@ -6,8 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import async_session
 from app.models.club import Club
 from app.models.event import Event
+from app.models.news import News
 from app.scraper.kozminski import ScrapedEvent
 from app.scraper.logger import logger
+from app.scraper.news import ScrapedNews
 
 UNIVERSITY_LOGIN = "__university__"
 
@@ -144,6 +146,64 @@ async def save_events(scraped: list[ScrapedEvent]) -> dict:
 
             except Exception as e:
                 logger.error("Error saving '%s': %s", ev.title, e)
+                stats["errors"] += 1
+
+        await db.commit()
+
+    return stats
+
+
+# ---------------------------------------------------------------------------
+# News
+# ---------------------------------------------------------------------------
+
+NEWS_UPDATABLE_FIELDS = ["description", "preview", "author"]
+
+
+async def _find_existing_news(db: AsyncSession, title: str) -> News | None:
+    """Find existing news by title."""
+    result = await db.execute(select(News).where(News.title == title))
+    return result.scalar_one_or_none()
+
+
+async def save_news(scraped: list[ScrapedNews]) -> dict:
+    """Save scraped news to DB. Returns stats dict."""
+    stats = {"total": len(scraped), "added": 0, "updated": 0, "skipped": 0, "errors": 0}
+
+    async with async_session() as db:
+        for item in scraped:
+            try:
+                existing = await _find_existing_news(db, item.title)
+
+                if existing:
+                    changed = False
+                    new_vals = {
+                        "description": item.description,
+                        "preview": item.preview[:500] if item.preview else None,
+                        "author": None,
+                    }
+                    for field in NEWS_UPDATABLE_FIELDS:
+                        new_val = new_vals.get(field)
+                        old_val = getattr(existing, field, None)
+                        if new_val != old_val:
+                            setattr(existing, field, new_val)
+                            changed = True
+                    if changed:
+                        stats["updated"] += 1
+                    else:
+                        stats["skipped"] += 1
+                else:
+                    news = News(
+                        title=item.title,
+                        description=item.description or "",
+                        preview=(item.preview[:500] if item.preview else None),
+                        is_archived=False,
+                    )
+                    db.add(news)
+                    stats["added"] += 1
+
+            except Exception as e:
+                logger.error("Error saving news '%s': %s", item.title, e)
                 stats["errors"] += 1
 
         await db.commit()
