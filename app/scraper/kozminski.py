@@ -66,6 +66,93 @@ def _normalize_mode(raw: str) -> str | None:
     return mapping.get(raw)
 
 
+def _html_to_clean_text(body_tag) -> str:
+    """Convert HTML body to clean plain text for mobile display."""
+    # Remove decorative emojis that duplicate structured fields
+    DECORATIVE_EMOJIS = re.compile(r"[\U0001F4C5\U0001F4CD\U0001F554\U0001F550-\U0001F567\U0001F4E9\u2709\ufe0f\u23F0\u2B50]")
+
+    # Process <br> → newline before extracting text
+    for br in body_tag.find_all("br"):
+        br.replace_with("\n")
+
+    # Process each <p> and <li> into paragraphs
+    paragraphs = []
+    for el in body_tag.find_all(["p", "li"]):
+        text = el.get_text(separator=" ").strip()
+        if not text or text == "\xa0":
+            continue
+        # Clean up
+        text = text.replace("\xa0", " ")
+        text = DECORATIVE_EMOJIS.sub("", text)
+        text = re.sub(r"  +", " ", text)  # collapse multiple spaces
+        text = text.strip()
+        if text:
+            # Prefix list items with bullet
+            if el.name == "li":
+                text = f"• {text}"
+            paragraphs.append(text)
+
+    result = "\n\n".join(paragraphs)
+    # Collapse 3+ newlines into 2
+    result = re.sub(r"\n{3,}", "\n\n", result)
+    return result.strip()
+
+
+def _remove_redundant_lines(text: str, title: str, location: str | None,
+                           room: str | None, start_date: dt.date,
+                           start_time: dt.time) -> str:
+    """Remove description lines that just repeat structured fields."""
+    date_strs = {
+        start_date.strftime("%d.%m.%Y"),
+        start_date.strftime("%d.%m.%y"),
+        start_date.strftime("%-d %B %Y"),  # "13 May 2025"
+    }
+    time_str = start_time.strftime("%H:%M")
+
+    lines = text.split("\n")
+    filtered = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            filtered.append(line)
+            continue
+
+        # Skip lines that are just the title repeated
+        if stripped.lower() == title.lower():
+            continue
+
+        # Skip lines that are purely date/time/location info (short + matches)
+        if len(stripped) < 80:
+            lower = stripped.lower()
+            is_redundant = False
+
+            # "Termin: 13 maja 2025" / "Data: ..." / "Godzina: 17:00"
+            if any(d in stripped for d in date_strs) and any(
+                k in lower for k in ("termin", "data", "date", "kiedy", "when")
+            ):
+                is_redundant = True
+            if time_str in stripped and any(
+                k in lower for k in ("godzina", "godz", "time", "hour")
+            ):
+                is_redundant = True
+            # "Miejsce: ALK, sala A/22"
+            if any(k in lower for k in ("miejsce:", "location:", "where:", "venue:")):
+                is_redundant = True
+            # Lines that are just the location name
+            if location and stripped.lower() == location.lower():
+                is_redundant = True
+
+            if is_redundant:
+                continue
+
+        filtered.append(line)
+
+    result = "\n".join(filtered)
+    # Collapse excessive blank lines
+    result = re.sub(r"\n{3,}", "\n\n", result)
+    return result.strip()
+
+
 def _normalize_language(raw: str) -> str | None:
     """Map language text to schema values."""
     raw = raw.strip().lower()
@@ -175,7 +262,7 @@ async def fetch_detail(client: httpx.AsyncClient, url: str) -> dict:
     # Description from body
     body_section = soup.select_one("section.block-field-event-body div.body")
     if body_section:
-        detail["description"] = body_section.get_text(separator="\n", strip=True)
+        detail["description_raw"] = body_section
 
     # Registration URL from CTA container
     cta_container = soup.select_one("div.event-cta-container")
@@ -231,21 +318,37 @@ async def scrape_events() -> list[ScrapedEvent]:
             # Determine location: prefer header location, fallback to place section
             location = detail.get("location") or detail.get("place")
 
-            # Parse room from description body if it mentions "sala"
+            end_date = detail.get("end_date", item["start_date"])
+            end_time = detail.get("end_time", item["start_time"])
+
+            # Parse room from raw description HTML
             room = None
-            if detail.get("description"):
-                room_match = re.search(r"sala\s+([A-Za-z0-9/]+)", detail["description"])
+            description = None
+            body_tag = detail.get("description_raw")
+            if body_tag:
+                raw_text = body_tag.get_text()
+                room_match = re.search(r"sala\s+([A-Za-z0-9/]+)", raw_text)
                 if room_match:
                     room = room_match.group(1)
 
-            # If location mentions ALK or Koźmińskiego, try to extract room
+                # Convert HTML to clean text
+                description = _html_to_clean_text(body_tag)
+
+                # Remove lines that duplicate structured fields
+                description = _remove_redundant_lines(
+                    description,
+                    title=item["title"],
+                    location=location,
+                    room=room,
+                    start_date=item["start_date"],
+                    start_time=item["start_time"],
+                )
+
+            # If location mentions sala, extract room
             if location and not room:
                 room_match = re.search(r"sala\s+([A-Za-z0-9/]+)", location)
                 if room_match:
                     room = room_match.group(1)
-
-            end_date = detail.get("end_date", item["start_date"])
-            end_time = detail.get("end_time", item["start_time"])
 
             event = ScrapedEvent(
                 title=item["title"],
@@ -254,7 +357,7 @@ async def scrape_events() -> list[ScrapedEvent]:
                 start_time=item["start_time"],
                 end_date=end_date,
                 end_time=end_time,
-                description=detail.get("description"),
+                description=description,
                 location=location,
                 room=room,
                 mode=detail.get("mode"),
