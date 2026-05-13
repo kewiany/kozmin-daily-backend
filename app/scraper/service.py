@@ -3,6 +3,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from datetime import datetime, timezone
+
 from app.database import async_session
 from app.models.club import Club
 from app.models.event import Event
@@ -193,11 +195,16 @@ async def save_news(scraped: list[ScrapedNews]) -> dict:
                     else:
                         stats["skipped"] += 1
                 else:
+                    created_at = (
+                        datetime(item.date.year, item.date.month, item.date.day, tzinfo=timezone.utc)
+                        if item.date else datetime.now(timezone.utc)
+                    )
                     news = News(
                         title=item.title,
                         description=item.description or "",
                         preview=(item.preview[:500] if item.preview else None),
                         is_archived=False,
+                        created_at=created_at,
                     )
                     db.add(news)
                     stats["added"] += 1
