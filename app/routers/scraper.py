@@ -4,6 +4,7 @@ from app.config import settings
 from app.dependencies import require_admin_role
 from app.models.club import Club
 from app.scraper.kozminski import scrape_events
+from app.scraper.logger import start_capture, stop_capture
 from app.scraper.service import save_events
 
 router = APIRouter(prefix="/api/v1/admin/scraper", tags=["scraper"])
@@ -12,9 +13,11 @@ router = APIRouter(prefix="/api/v1/admin/scraper", tags=["scraper"])
 @router.post("/run")
 async def run_scraper(_admin: Club = Depends(require_admin_role)):
     """Manually trigger the scraper (admin JWT)."""
+    start_capture()
     events = await scrape_events()
     stats = await save_events(events)
-    return stats
+    log = stop_capture()
+    return {**stats, "log": log}
 
 
 @router.post("/cron")
@@ -22,6 +25,8 @@ async def run_scraper_cron(x_scraper_secret: str = Header()):
     """Trigger scraper via cron secret (no expiry)."""
     if not settings.SCRAPER_SECRET or x_scraper_secret != settings.SCRAPER_SECRET:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret")
+    start_capture()
     events = await scrape_events()
     stats = await save_events(events)
-    return stats
+    log = stop_capture()
+    return {**stats, "log": log}

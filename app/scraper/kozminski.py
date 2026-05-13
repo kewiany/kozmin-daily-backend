@@ -91,8 +91,8 @@ def _html_to_clean_text(body_tag) -> str:
             continue
         # Clean up
         text = text.replace("\xa0", " ")
-        text = EMOJI_RE.sub("", text)
-        text = re.sub(r"  +", " ", text)  # collapse multiple spaces
+        text = EMOJI_RE.sub(" ", text)  # replace emoji with space
+        text = re.sub(r" {2,}", " ", text)  # collapse multiple spaces
         text = text.strip()
         if text:
             # Prefix list items with bullet
