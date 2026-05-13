@@ -133,6 +133,10 @@ async def fetch_listing(client: httpx.AsyncClient) -> list[dict]:
         except ValueError:
             continue
 
+        # Skip past events
+        if start_date < dt.date.today():
+            continue
+
         events.append({
             "title": title_text,
             "url": full_url,
