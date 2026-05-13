@@ -14,6 +14,7 @@ UNIVERSITY_LOGIN = "__university__"
 UPDATABLE_FIELDS = [
     "description", "end_date", "end_time", "mode", "language",
     "address_name", "address_street", "address_city", "room_number", "audience",
+    "cta_enabled", "cta_button_text", "cta_link_url",
     "cta2_enabled", "cta2_button_text", "cta2_link_url",
 ]
 
@@ -42,10 +43,20 @@ async def find_existing(db: AsyncSession, title: str, start_date, club_id: int) 
     return result.scalar_one_or_none()
 
 
+def _is_online(location: str | None, mode: str | None) -> bool:
+    """Check if event is online."""
+    if mode == "online":
+        return True
+    if location:
+        loc = location.lower()
+        return "online" in loc or "ms teams" in loc or "zoom" in loc
+    return False
+
+
 def _is_alk(location: str | None) -> bool:
     """Check if location is at Akademia Leona Koźmińskiego."""
     if not location:
-        return True  # default to ALK for university events
+        return True
     return "koźmińskiego" in location.lower() or "kozminski" in location.lower()
 
 
@@ -67,6 +78,13 @@ def _map_audience(raw: str | None) -> list[str] | None:
 
 def _build_event_data(ev: ScrapedEvent, club_id: int) -> dict:
     """Build a dict of Event fields from a scraped event."""
+    online = _is_online(ev.location, ev.mode)
+    alk = not online and _is_alk(ev.location)
+
+    # CTA1: only registration link (skip kozminski.edu.pl page links)
+    # CTA2: not used
+    has_registration = bool(ev.registration_url)
+
     return {
         "title": ev.title,
         "description": ev.description,
@@ -78,17 +96,17 @@ def _build_event_data(ev: ScrapedEvent, club_id: int) -> dict:
         "audience": _map_audience(ev.audience),
         "mode": ev.mode,
         "language": ev.language,
-        "address_name": ev.location or "Akademia Leona Koźmińskiego",
-        "address_street": "ul. Jagiellońska 57/59" if _is_alk(ev.location) else None,
-        "address_city": "Warszawa",
+        "address_name": None if online else (ev.location or "Akademia Leona Koźmińskiego"),
+        "address_street": "ul. Jagiellońska 57/59" if alk else None,
+        "address_city": None if online else "Warszawa",
         "room_number": ev.room,
         "club_id": club_id,
-        "cta_enabled": True,
-        "cta_button_text": "Strona wydarzenia",
-        "cta_link_url": ev.url,
-        "cta2_enabled": bool(ev.registration_url),
-        "cta2_button_text": "Rejestracja" if ev.registration_url else None,
-        "cta2_link_url": ev.registration_url,
+        "cta_enabled": has_registration,
+        "cta_button_text": "Rejestracja" if has_registration else None,
+        "cta_link_url": ev.registration_url if has_registration else None,
+        "cta2_enabled": False,
+        "cta2_button_text": None,
+        "cta2_link_url": None,
     }
 
 
