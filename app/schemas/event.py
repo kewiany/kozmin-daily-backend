@@ -81,12 +81,11 @@ class EventUpdate(BaseModel):
         return self
 
 
-class EventOut(BaseModel):
+class EventListOut(BaseModel):
+    """Lightweight schema for event lists - no description or CTA."""
     id: int
     title: str
     title_en: str | None = None
-    description: str | None
-    description_en: str | None = None
     event_type: str | None = None
     start_date: dt.date
     start_time: dt.time
@@ -100,15 +99,21 @@ class EventOut(BaseModel):
     address_city: str | None = None
     room_number: str | None = None
     is_highlighted: bool = False
-    cta_enabled: bool = False
-    cta_button_text: str | None = None
-    cta_link_url: str | None = None
-    cta2_enabled: bool = False
-    cta2_button_text: str | None = None
-    cta2_link_url: str | None = None
     status: str
     club_id: int
     club: ClubBrief | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class EventOut(EventListOut):
+    """Full schema for event detail - includes description and CTA."""
+    description: str | None = None
+    description_en: str | None = None
+    cta_enabled: bool = False
+    cta_button_text: str | None = None
+    cta_link_url: str | None = None
+    cta2_enabled: bool = False
+    cta2_button_text: str | None = None
+    cta2_link_url: str | None = None

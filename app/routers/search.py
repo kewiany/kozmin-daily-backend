@@ -6,13 +6,13 @@ from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.event import Event
-from app.schemas.event import EventOut
+from app.schemas.event import EventListOut
 
 router = APIRouter(prefix="/api/v1/search", tags=["search"])
 
 
 class SearchResponse(BaseModel):
-    events: list[EventOut]
+    events: list[EventListOut]
 
 
 @router.get("", response_model=SearchResponse)

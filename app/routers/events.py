@@ -8,12 +8,12 @@ from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.models.event import Event
-from app.schemas.event import EventOut
+from app.schemas.event import EventListOut, EventOut
 
 router = APIRouter(prefix="/api/v1/events", tags=["events"])
 
 
-@router.get("", response_model=list[EventOut])
+@router.get("", response_model=list[EventListOut])
 async def list_events(
     skip: int = 0,
     limit: int = 20,
@@ -35,7 +35,7 @@ async def list_events(
     return result.scalars().all()
 
 
-@router.get("/all", response_model=list[EventOut])
+@router.get("/all", response_model=list[EventListOut])
 async def list_all_events(
     skip: int = 0,
     limit: int = 100,
@@ -63,7 +63,7 @@ async def list_all_events(
     return result.scalars().all()
 
 
-@router.get("/upcoming", response_model=list[EventOut])
+@router.get("/upcoming", response_model=list[EventListOut])
 async def list_upcoming_events(
     skip: int = 0,
     limit: int = 20,
@@ -91,7 +91,7 @@ async def list_upcoming_events(
     return result.scalars().all()
 
 
-@router.get("/past", response_model=list[EventOut])
+@router.get("/past", response_model=list[EventListOut])
 async def list_past_events(
     skip: int = 0,
     limit: int = 20,

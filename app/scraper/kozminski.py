@@ -359,11 +359,18 @@ async def scrape_events() -> list[ScrapedEvent]:
                     if room_in_loc and not room:
                         room = room_in_loc.group(1).strip()
 
-            # If location mentions sala, extract room
+            # If location mentions sala/aula, extract room and clean location
             if location and not room:
                 room_match = re.search(r"sala\s+([A-Za-z0-9/]+)", location)
                 if room_match:
                     room = room_match.group(1)
+            if location and room:
+                # Remove room portion from location: "ALK, sala D/204" → "ALK"
+                location = re.sub(r"[,;]\s*(?:sala\s+)?(?:Aula\s+\S+|[A-Za-z]/?\d+\S*)\s*$", "", location, flags=re.IGNORECASE).strip()
+                location = re.sub(r"^(?:sala\s+)?(?:Aula\s+\S+|[A-Za-z]/?\d+\S*)\s*[,;]\s*", "", location, flags=re.IGNORECASE).strip()
+                # If cleaning left nothing or just punctuation, default to ALK
+                if not location or location in (",", ";"):
+                    location = "Akademia Leona Koźmińskiego"
 
             # If location is just a room/aula name, set ALK as the address
             if location:
