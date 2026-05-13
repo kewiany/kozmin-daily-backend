@@ -4,6 +4,7 @@ Seed CLI for creating clubs and admins.
 Usage:
     python -m app.seed add-club "Koło Naukowe AI" "ai_club" "password123"
     python -m app.seed add-admin "Admin Uczelni" "admin" "admin123"
+    python -m app.seed update-password "admin" "newpassword456"
 """
 
 import asyncio
@@ -41,6 +42,19 @@ async def add_club(name: str, login: str, password: str):
         print(f"Club '{name}' created (login: {login})")
 
 
+async def update_password(login: str, new_password: str):
+    await create_tables()
+    async with async_session() as db:
+        result = await db.execute(select(Club).where(Club.login == login))
+        club = result.scalar_one_or_none()
+        if not club:
+            print(f"No club/admin with login '{login}' found.")
+            return
+        club.password = hash_password(new_password)
+        await db.commit()
+        print(f"Password updated for '{club.name}' (login: {login}, role: {club.role})")
+
+
 async def add_admin(name: str, login: str, password: str):
     await create_tables()
     async with async_session() as db:
@@ -60,19 +74,29 @@ async def add_admin(name: str, login: str, password: str):
 
 
 def main():
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 2:
         print("Usage:")
         print('  python -m app.seed add-club "Name" "login" "password"')
         print('  python -m app.seed add-admin "Name" "login" "password"')
+        print('  python -m app.seed update-password "login" "new_password"')
         sys.exit(1)
 
     command = sys.argv[1]
-    name, login, password = sys.argv[2], sys.argv[3], sys.argv[4]
 
-    if command == "add-club":
-        asyncio.run(add_club(name, login, password))
-    elif command == "add-admin":
-        asyncio.run(add_admin(name, login, password))
+    if command == "update-password":
+        if len(sys.argv) < 4:
+            print('Usage: python -m app.seed update-password "login" "new_password"')
+            sys.exit(1)
+        asyncio.run(update_password(sys.argv[2], sys.argv[3]))
+    elif command in ("add-club", "add-admin"):
+        if len(sys.argv) < 5:
+            print(f'Usage: python -m app.seed {command} "Name" "login" "password"')
+            sys.exit(1)
+        name, login, password = sys.argv[2], sys.argv[3], sys.argv[4]
+        if command == "add-club":
+            asyncio.run(add_club(name, login, password))
+        else:
+            asyncio.run(add_admin(name, login, password))
     else:
         print(f"Unknown command: {command}")
         sys.exit(1)
