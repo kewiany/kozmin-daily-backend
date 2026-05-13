@@ -7,6 +7,7 @@ from app.database import async_session
 from app.models.club import Club
 from app.models.event import Event
 from app.scraper.kozminski import ScrapedEvent
+from app.scraper.logger import logger
 
 UNIVERSITY_LOGIN = "__university__"
 
@@ -142,7 +143,7 @@ async def save_events(scraped: list[ScrapedEvent]) -> dict:
                     stats["added"] += 1
 
             except Exception as e:
-                print(f"  Error saving '{ev.title}': {e}")
+                logger.error("Error saving '%s': %s", ev.title, e)
                 stats["errors"] += 1
 
         await db.commit()

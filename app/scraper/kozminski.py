@@ -8,6 +8,8 @@ from urllib.parse import parse_qs, unquote, urlparse
 import httpx
 from bs4 import BeautifulSoup
 
+from app.scraper.logger import logger
+
 BASE_URL = "https://www.kozminski.edu.pl"
 LISTING_URL = f"{BASE_URL}/pl/wydarzenia"
 
@@ -327,14 +329,14 @@ async def scrape_events() -> list[ScrapedEvent]:
     """Full scrape: listing page + detail pages for each event."""
     async with httpx.AsyncClient(timeout=30.0) as client:
         listing = await fetch_listing(client)
-        print(f"Found {len(listing)} events on listing page")
+        logger.info("Found %d events on listing page", len(listing))
 
         results = []
         for item in listing:
             try:
                 detail = await fetch_detail(client, item["url"])
             except httpx.HTTPError as e:
-                print(f"  Error fetching {item['url']}: {e}")
+                logger.warning("Error fetching %s: %s", item["url"], e)
                 continue
 
             # Determine location: prefer header location, fallback to place section
@@ -455,6 +457,6 @@ async def scrape_events() -> list[ScrapedEvent]:
                 image_url=detail.get("image_url"),
             )
             results.append(event)
-            print(f"  Scraped: {event.title}")
+            logger.info("Scraped: %s", event.title)
 
         return results
