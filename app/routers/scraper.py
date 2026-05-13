@@ -14,15 +14,19 @@ router = APIRouter(prefix="/api/v1/admin/scraper", tags=["scraper"])
 async def _run_all_scrapers() -> dict:
     """Run events + news scrapers and return combined stats."""
     start_capture()
-
     events = await scrape_events()
     event_stats = await save_events(events)
+    events_log = stop_capture()
 
+    start_capture()
     news = await scrape_news()
     news_stats = await save_news(news)
+    news_log = stop_capture()
 
-    log = stop_capture()
-    return {"events": event_stats, "news": news_stats, "log": log}
+    return {
+        "events": {**event_stats, "log": events_log},
+        "news": {**news_stats, "log": news_log},
+    }
 
 
 @router.post("/run")
