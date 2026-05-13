@@ -344,11 +344,44 @@ async def scrape_events() -> list[ScrapedEvent]:
                     start_time=item["start_time"],
                 )
 
+            # Extract location/room from body text when not in structured fields
+            if body_tag and not location:
+                raw_text = body_tag.get_text()
+                miejsce_match = re.search(
+                    r"(?:Miejsce|Location|Venue|Gdzie)\s*:\s*(.+)",
+                    raw_text,
+                )
+                if miejsce_match:
+                    miejsce = miejsce_match.group(1).strip().split("\n")[0].strip()
+                    location = miejsce
+                    # Extract room from "ALK, Aula II" or "ALK, sala D/204"
+                    room_in_loc = re.search(r"[,;]\s*((?:sala\s+)?(?:Aula\b|[A-Z]/?\d+).*)$", miejsce, re.IGNORECASE)
+                    if room_in_loc and not room:
+                        room = room_in_loc.group(1).strip()
+
             # If location mentions sala, extract room
             if location and not room:
                 room_match = re.search(r"sala\s+([A-Za-z0-9/]+)", location)
                 if room_match:
                     room = room_match.group(1)
+
+            # If location is just a room/aula name, set ALK as the address
+            if location:
+                loc_clean = location.strip()
+                loc_lower = loc_clean.lower()
+                is_room_only = (
+                    re.match(r"^(sala\s+)?[a-z]\s*/?\s*\d+", loc_lower)  # "D/217", "sala D 202"
+                    or re.match(r"^(sala\s+)?aula\b", loc_lower)          # "Aula II", "sala Aula I"
+                    or re.match(r"^[a-z]\d{2,}$", loc_lower)              # "D217"
+                )
+                if is_room_only:
+                    if not room:
+                        room = re.sub(r"^sala\s+", "", loc_clean, flags=re.IGNORECASE).strip()
+                    location = "Akademia Leona Koźmińskiego"
+
+            # No location at all → default to ALK (it's a university event page)
+            if not location:
+                location = "Akademia Leona Koźmińskiego"
 
             event = ScrapedEvent(
                 title=item["title"],

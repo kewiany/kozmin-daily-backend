@@ -13,7 +13,7 @@ UNIVERSITY_LOGIN = "__university__"
 # Fields that get updated if the event already exists
 UPDATABLE_FIELDS = [
     "description", "end_date", "end_time", "mode", "language",
-    "address_name", "address_city", "room_number",
+    "address_name", "address_street", "address_city", "room_number", "audience",
     "cta2_enabled", "cta2_button_text", "cta2_link_url",
 ]
 
@@ -40,6 +40,13 @@ async def find_existing(db: AsyncSession, title: str, start_date, club_id: int) 
         )
     )
     return result.scalar_one_or_none()
+
+
+def _is_alk(location: str | None) -> bool:
+    """Check if location is at Akademia Leona Koźmińskiego."""
+    if not location:
+        return True  # default to ALK for university events
+    return "koźmińskiego" in location.lower() or "kozminski" in location.lower()
 
 
 def _map_audience(raw: str | None) -> list[str] | None:
@@ -71,7 +78,8 @@ def _build_event_data(ev: ScrapedEvent, club_id: int) -> dict:
         "audience": _map_audience(ev.audience),
         "mode": ev.mode,
         "language": ev.language,
-        "address_name": ev.location or None,
+        "address_name": ev.location or "Akademia Leona Koźmińskiego",
+        "address_street": "ul. Jagiellońska 57/59" if _is_alk(ev.location) else None,
         "address_city": "Warszawa",
         "room_number": ev.room,
         "club_id": club_id,
