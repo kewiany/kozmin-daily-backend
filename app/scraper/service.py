@@ -159,7 +159,7 @@ async def save_events(scraped: list[ScrapedEvent]) -> dict:
 # News
 # ---------------------------------------------------------------------------
 
-NEWS_UPDATABLE_FIELDS = ["description", "preview", "author"]
+NEWS_UPDATABLE_FIELDS = ["description", "preview", "author", "created_at"]
 
 
 async def _find_existing_news(db: AsyncSession, title: str) -> News | None:
@@ -179,10 +179,15 @@ async def save_news(scraped: list[ScrapedNews]) -> dict:
 
                 if existing:
                     changed = False
+                    created_at = (
+                        datetime(item.date.year, item.date.month, item.date.day, tzinfo=timezone.utc)
+                        if item.date else None
+                    )
                     new_vals = {
                         "description": item.description,
                         "preview": item.preview[:500] if item.preview else None,
                         "author": None,
+                        "created_at": created_at,
                     }
                     for field in NEWS_UPDATABLE_FIELDS:
                         new_val = new_vals.get(field)
