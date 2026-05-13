@@ -1,0 +1,21 @@
+name: Scrape Kozminski Events
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 8:00 Warsaw time (UTC+2)
+  workflow_dispatch: # manual trigger from GitHub UI
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger scraper
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "${{ secrets.API_URL }}/api/v1/admin/scraper/run" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_TOKEN }}")
+          echo "Response code: $response"
+          if [ "$response" != "200" ]; then
+            echo "Scraper failed with status $response"
+            exit 1
+          fi
