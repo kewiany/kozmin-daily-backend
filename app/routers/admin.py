@@ -7,8 +7,10 @@ from app.dependencies import require_admin_role
 from app.firebase import send_broadcast
 from app.models.club import Club
 from app.models.event import Event
+from app.models.news import News
 from app.models.user import User
 from app.schemas.event import EventOut
+from app.schemas.news import NewsOut, NewsUpdate
 from app.schemas.notification import (
     BroadcastNotificationRequest,
     BroadcastNotificationResponse,
@@ -58,6 +60,24 @@ async def reject_event(
     await db.commit()
     await db.refresh(event)
     return event
+
+
+@router.patch("/news/{news_id}", response_model=NewsOut)
+async def update_news(
+    news_id: int,
+    body: NewsUpdate,
+    _admin: Club = Depends(require_admin_role),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(News).where(News.id == news_id))
+    news = result.scalar_one_or_none()
+    if not news:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="News not found")
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(news, field, value)
+    await db.commit()
+    await db.refresh(news)
+    return news
 
 
 @router.post(
