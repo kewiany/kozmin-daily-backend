@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     DISABLE_DOCS: bool = False
     APPLE_BUNDLE_ID: str = "pl.startupstars.kozmindaily"
     FIREBASE_CREDENTIALS_JSON: str = ""
+    SCRAPER_SECRET: str = ""
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 

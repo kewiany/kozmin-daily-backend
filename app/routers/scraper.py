@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 
+from app.config import settings
 from app.dependencies import require_admin_role
 from app.models.club import Club
 from app.scraper.kozminski import scrape_events
@@ -10,7 +11,17 @@ router = APIRouter(prefix="/api/v1/admin/scraper", tags=["scraper"])
 
 @router.post("/run")
 async def run_scraper(_admin: Club = Depends(require_admin_role)):
-    """Manually trigger the Kozminski events scraper."""
+    """Manually trigger the scraper (admin JWT)."""
+    events = await scrape_events()
+    stats = await save_events(events)
+    return stats
+
+
+@router.post("/cron")
+async def run_scraper_cron(x_scraper_secret: str = Header()):
+    """Trigger scraper via cron secret (no expiry)."""
+    if not settings.SCRAPER_SECRET or x_scraper_secret != settings.SCRAPER_SECRET:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret")
     events = await scrape_events()
     stats = await save_events(events)
     return stats
