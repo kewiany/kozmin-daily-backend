@@ -68,8 +68,13 @@ def _normalize_mode(raw: str) -> str | None:
 
 def _html_to_clean_text(body_tag) -> str:
     """Convert HTML body to clean plain text for mobile display."""
-    # Remove decorative emojis that duplicate structured fields
-    DECORATIVE_EMOJIS = re.compile(r"[\U0001F4C5\U0001F4CD\U0001F554\U0001F550-\U0001F567\U0001F4E9\u2709\ufe0f\u23F0\u2B50]")
+    # Remove all emoji (decorative ones that look bad on mobile)
+    EMOJI_RE = re.compile(
+        r"[\U0001F300-\U0001F9FF\U00002702-\U000027B0\U0000FE00-\U0000FE0F"
+        r"\U0000200D\U00002600-\U000026FF\U00002B50\U00002B55\U000023F0-\U000023FA"
+        r"\U0001FA00-\U0001FA6F\U0001FA70-\U0001FAFF]+",
+        re.UNICODE,
+    )
 
     # Process <br> → newline before extracting text
     for br in body_tag.find_all("br"):
@@ -77,22 +82,39 @@ def _html_to_clean_text(body_tag) -> str:
 
     # Process each <p> and <li> into paragraphs
     paragraphs = []
+    consecutive_bullets = 0
     for el in body_tag.find_all(["p", "li"]):
         text = el.get_text(separator=" ").strip()
         if not text or text == "\xa0":
             continue
         # Clean up
         text = text.replace("\xa0", " ")
-        text = DECORATIVE_EMOJIS.sub("", text)
+        text = EMOJI_RE.sub("", text)
         text = re.sub(r"  +", " ", text)  # collapse multiple spaces
         text = text.strip()
         if text:
             # Prefix list items with bullet
-            if el.name == "li":
+            is_bullet = el.name == "li"
+            if is_bullet:
                 text = f"• {text}"
+                consecutive_bullets += 1
+            else:
+                consecutive_bullets = 0
             paragraphs.append(text)
 
-    result = "\n\n".join(paragraphs)
+    # Join: single newline between consecutive bullets, double between paragraphs
+    lines = []
+    for i, para in enumerate(paragraphs):
+        if i > 0:
+            prev_is_bullet = paragraphs[i - 1].startswith("• ")
+            curr_is_bullet = para.startswith("• ")
+            if prev_is_bullet and curr_is_bullet:
+                lines.append("\n")
+            else:
+                lines.append("\n\n")
+        lines.append(para)
+
+    result = "".join(lines)
     # Collapse 3+ newlines into 2
     result = re.sub(r"\n{3,}", "\n\n", result)
     return result.strip()
@@ -390,6 +412,32 @@ async def scrape_events() -> list[ScrapedEvent]:
             if not location:
                 location = "Akademia Leona Koźmińskiego"
 
+            # Infer mode from title/description when not in structured fields
+            mode = detail.get("mode")
+            if not mode:
+                all_text = (item["title"] + " " + (description or "")).lower()
+                if "online" in all_text and "offline" not in all_text:
+                    mode = "online"
+                elif "hybryd" in all_text:
+                    mode = "hybrid"
+
+            # Infer language from title/description when not in structured fields
+            language = detail.get("language")
+            if not language:
+                title_lower = item["title"].lower()
+                desc_lower = (description or "").lower()
+                # English indicators in title
+                en_words = ["open day", "workshop", "webinar", "meeting", "lecture",
+                            "summit", "masterclass", "bootcamp", "challenge"]
+                pl_words = ["zapraszamy", "wykład", "spotkanie", "warsztaty",
+                            "konferencja", "dzień", "konkurs"]
+                if any(w in title_lower for w in en_words):
+                    language = "en"
+                elif any(w in title_lower for w in pl_words):
+                    language = "pl"
+                elif any(w in desc_lower for w in pl_words):
+                    language = "pl"
+
             event = ScrapedEvent(
                 title=item["title"],
                 url=item["url"],
@@ -400,8 +448,8 @@ async def scrape_events() -> list[ScrapedEvent]:
                 description=description,
                 location=location,
                 room=room,
-                mode=detail.get("mode"),
-                language=detail.get("language"),
+                mode=mode,
+                language=language,
                 audience=detail.get("audience"),
                 registration_url=detail.get("registration_url"),
                 image_url=detail.get("image_url"),
