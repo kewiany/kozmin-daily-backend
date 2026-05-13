@@ -91,7 +91,7 @@ def _html_to_clean_text(body_tag) -> str:
             continue
         # Clean up
         text = text.replace("\xa0", " ")
-        text = EMOJI_RE.sub(" ", text)  # replace emoji with space
+        text = re.sub(r"\s*" + EMOJI_RE.pattern + r"\s*", " ", text)  # remove emoji + surrounding spaces
         text = re.sub(r" {2,}", " ", text)  # collapse multiple spaces
         text = text.strip()
         if text:
