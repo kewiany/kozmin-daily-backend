@@ -138,12 +138,14 @@ async def save_events(scraped: list[ScrapedEvent]) -> dict:
                             changed = True
 
                     if changed:
+                        logger.info("Updated event: %s", ev.title)
                         stats["updated"] += 1
                     else:
                         stats["skipped"] += 1
                 else:
                     event = Event(**data)
                     db.add(event)
+                    logger.info("Added event: %s", ev.title)
                     stats["added"] += 1
 
             except Exception as e:
@@ -196,6 +198,7 @@ async def save_news(scraped: list[ScrapedNews]) -> dict:
                             setattr(existing, field, new_val)
                             changed = True
                     if changed:
+                        logger.info("Updated news: %s", item.title)
                         stats["updated"] += 1
                     else:
                         stats["skipped"] += 1
@@ -212,6 +215,7 @@ async def save_news(scraped: list[ScrapedNews]) -> dict:
                         created_at=created_at,
                     )
                     db.add(news)
+                    logger.info("Added news: %s", item.title)
                     stats["added"] += 1
 
             except Exception as e:

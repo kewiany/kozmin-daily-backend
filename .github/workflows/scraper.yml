@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: secure-happiness / production
     steps:
+      - name: Set date
+        run: echo "DATE=$(date -u +'%Y-%m-%d')" >> "$GITHUB_ENV"
+
       - name: Trigger scraper
         run: |
           response=$(curl -s -w "\n%{http_code}" -X POST \
@@ -29,6 +32,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-log-${{ github.run_id }}
+          name: scraper-${{ env.DATE }}
           path: scraper-result.json
           retention-days: 90
